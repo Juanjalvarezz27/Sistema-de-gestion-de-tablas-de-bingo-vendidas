@@ -2,10 +2,10 @@
 
 
 a = Analysis(
-    ['sistema_final_descargas.py'],
+    ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[('tablas_vendidas.json', '.')],
+    datas=[],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -35,5 +35,4 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='NONE',
 )
