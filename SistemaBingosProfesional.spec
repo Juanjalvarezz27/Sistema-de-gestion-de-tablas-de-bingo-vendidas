@@ -5,7 +5,7 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[('views', 'views'), ('models', 'models'), ('utils', 'utils')],
+    datas=[('views', 'views'), ('models', 'models'), ('utils', 'utils'), ('assets', 'assets')],
     hiddenimports=['tkinter', 'json', 'pathlib', 'datetime', 'os', 'sys', 'tempfile'],
     hookspath=[],
     hooksconfig={},
@@ -35,4 +35,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon=['assets\\logo.ico'],
 )
