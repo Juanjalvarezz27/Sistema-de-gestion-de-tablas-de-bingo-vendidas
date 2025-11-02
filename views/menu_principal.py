@@ -93,7 +93,7 @@ class VistaMenuPrincipal:
         
         # Footer
         footer_label = tk.Label(main_frame,
-            text="Sistema de Gestión de Bingos Profesional - Creado por Juan Alvarez",
+            text="Sistema de Gestión de Bingos Profesional - Desarrollado por Juan Alvarez",
             font=('Segoe UI', 10),
             bg='#0f0f23',
             fg='#666666',

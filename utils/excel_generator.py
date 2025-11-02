@@ -86,7 +86,7 @@ class GeneradorExcel:
                                      relief='flat',
                                      width=10,
                                      justify='center')
-        self.entry_cantidad.pack(pady=10, ipady=8)
+        self.entry_cantidad.pack(pady=10, ipady=25)
         self.entry_cantidad.insert(0, "100")  # Valor por defecto
         self.entry_cantidad.focus()
 
