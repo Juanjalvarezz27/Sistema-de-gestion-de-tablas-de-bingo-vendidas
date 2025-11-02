@@ -1,12 +1,25 @@
 # -*- mode: python ; coding: utf-8 -*-
+from PyInstaller.utils.hooks import collect_all
+
+datas = [('views', 'views'), ('models', 'models'), ('utils', 'utils'), ('assets', 'assets')]
+binaries = []
+hiddenimports = ['tkinter', 'json', 'pathlib', 'datetime', 'os', 'sys', 'tempfile', 'numpy', 'pandas', 'matplotlib', 'openpyxl', 'scipy', 'PIL', 'numpy.core._multiarray_umath', 'numpy.core._dtype_ctypes', 'numpy.core._multiarray_tests', 'pandas._libs.tslibs.timedeltas', 'pandas._libs.tslibs.nattype', 'pandas._libs.tslibs.np_datetime', 'pandas._libs.skiplist', 'matplotlib.backends.backend_agg', 'matplotlib.backends.backend_tkagg', 'matplotlib.pyplot', 'matplotlib.style']
+tmp_ret = collect_all('numpy')
+datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
+tmp_ret = collect_all('pandas')
+datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
+tmp_ret = collect_all('matplotlib')
+datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
+tmp_ret = collect_all('openpyxl')
+datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 
 
 a = Analysis(
     ['main.py'],
     pathex=[],
-    binaries=[],
-    datas=[('views', 'views'), ('models', 'models'), ('utils', 'utils'), ('assets', 'assets')],
-    hiddenimports=['tkinter', 'json', 'pathlib', 'datetime', 'os', 'sys', 'tempfile'],
+    binaries=binaries,
+    datas=datas,
+    hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

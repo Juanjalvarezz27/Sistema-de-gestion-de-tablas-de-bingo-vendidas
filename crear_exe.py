@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 def crear_ejecutable():
-    """Crear el ejecutable del sistema de bingos"""
+    """Crear el ejecutable del sistema de bingos con todas las dependencias"""
 
     # Verificar que el archivo principal existe
     if not os.path.exists('main.py'):
@@ -15,6 +15,7 @@ def crear_ejecutable():
 
     print("🚀 Creando ejecutable con icono...")
     print("📦 Esto puede tomar unos minutos...")
+    print("🔧 Incluyendo dependencias: numpy, pandas, matplotlib...")
 
     # Buscar icono en diferentes ubicaciones y formatos
     rutas_icono = [
@@ -60,6 +61,7 @@ def crear_ejecutable():
             '--add-data=models;models', 
             '--add-data=utils;utils',
             '--add-data=assets;assets',
+            # Dependencias principales
             '--hidden-import=tkinter',
             '--hidden-import=json',
             '--hidden-import=pathlib', 
@@ -67,6 +69,32 @@ def crear_ejecutable():
             '--hidden-import=os',
             '--hidden-import=sys',
             '--hidden-import=tempfile',
+            # Dependencias de Excel Generator
+            '--hidden-import=numpy',
+            '--hidden-import=pandas',
+            '--hidden-import=matplotlib',
+            '--hidden-import=openpyxl',
+            '--hidden-import=scipy',
+            '--hidden-import=PIL',
+            # Módulos específicos de numpy que PyInstaller no detecta
+            '--hidden-import=numpy.core._multiarray_umath',
+            '--hidden-import=numpy.core._dtype_ctypes',
+            '--hidden-import=numpy.core._multiarray_tests',
+            # Módulos específicos de pandas
+            '--hidden-import=pandas._libs.tslibs.timedeltas',
+            '--hidden-import=pandas._libs.tslibs.nattype',
+            '--hidden-import=pandas._libs.tslibs.np_datetime',
+            '--hidden-import=pandas._libs.skiplist',
+            # Módulos específicos de matplotlib
+            '--hidden-import=matplotlib.backends.backend_agg',
+            '--hidden-import=matplotlib.backends.backend_tkagg',
+            '--hidden-import=matplotlib.pyplot',
+            '--hidden-import=matplotlib.style',
+            # Colectar todas las dependencias de estos paquetes
+            '--collect-all=numpy',
+            '--collect-all=pandas',
+            '--collect-all=matplotlib',
+            '--collect-all=openpyxl',
             '--noconsole'
         ]
 
@@ -75,6 +103,11 @@ def crear_ejecutable():
             args.append(icon_arg)
 
         print("🛠️ Ejecutando PyInstaller...")
+        print("📋 Argumentos usados:")
+        for arg in args:
+            if len(arg) < 100:  # Evitar imprimir datos muy largos
+                print(f"   {arg}")
+        
         PyInstaller.__main__.run(args)
 
         print("\n✅ Ejecutable creado exitosamente!")
@@ -88,9 +121,20 @@ def crear_ejecutable():
         else:
             print("⚠️ El ejecutable usará el icono por defecto de Python")
 
+        print("\n✨ Funcionalidades incluidas:")
+        print("   ✅ Gestión de Bingos")
+        print("   ✅ Asignación de Cartones") 
+        print("   ✅ Estados: Vendido/Apartado/Disponible")
+        print("   ✅ Generación de Excel con tablas")
+        print("   ✅ Exportación/Importación de datos")
+
     except Exception as e:
         print(f"❌ Error creando el ejecutable: {e}")
-        print("💡 Solución: Asegúrate de que PyInstaller esté instalado: pip install pyinstaller")
+        print("💡 Posibles soluciones:")
+        print("   1. Ejecuta como administrador")
+        print("   2. Asegúrate de tener PyInstaller actualizado: pip install --upgrade pyinstaller")
+        print("   3. Cierra otros programas que puedan estar usando los archivos")
+        print("   4. Intenta en una nueva terminal/consola")
 
     input("\nPresiona Enter para cerrar...")
 
