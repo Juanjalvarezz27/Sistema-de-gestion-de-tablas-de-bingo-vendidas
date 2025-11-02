@@ -303,7 +303,7 @@ class VistaAsignaciones:
             frame_pago.pack(fill='x', pady=(0, 15))
 
             lbl_pago = tk.Label(frame_pago,
-                text=f"⏳ Estado: APARTADO - Pendiente de pago",
+                text=f"⏳ Estado: APARTADO",
                 font=('Segoe UI', 12, 'bold'),
                 bg=self.colors['bg_card'],
                 fg=self.colors['accent_warning']

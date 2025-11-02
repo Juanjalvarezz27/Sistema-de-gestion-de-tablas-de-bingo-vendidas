@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, filedialog
 import json
 import os
 from datetime import datetime
@@ -91,6 +91,7 @@ class VistaTablas:
             'accent_secondary': '#0099ff',
             'accent_danger': '#ff4757',
             'accent_warning': '#f39c12',
+            'accent_success': '#27ae60',
             'text_primary': '#ffffff',
             'text_secondary': '#b0b0b0',
             'border': '#00ff88'
@@ -191,6 +192,35 @@ class VistaTablas:
             bd=0
         )
         btn_exportar.pack(side='left', padx=5)
+
+        # Nuevos botones de exportar/importar datos
+        btn_exportar_datos = tk.Button(toolbar_frame,
+            text="💾 EXPORTAR DATOS",
+            command=self.exportar_datos,
+            font=('Segoe UI', 11, 'bold'),
+            bg='#9b59b6',
+            fg='white',
+            padx=20,
+            pady=10,
+            relief='flat',
+            cursor='hand2',
+            bd=0
+        )
+        btn_exportar_datos.pack(side='left', padx=5)
+
+        btn_importar_datos = tk.Button(toolbar_frame,
+            text="📥 IMPORTAR DATOS",
+            command=self.importar_datos,
+            font=('Segoe UI', 11, 'bold'),
+            bg='#3498db',
+            fg='white',
+            padx=20,
+            pady=10,
+            relief='flat',
+            cursor='hand2',
+            bd=0
+        )
+        btn_importar_datos.pack(side='left', padx=5)
 
         btn_reset = tk.Button(toolbar_frame,
             text="🔄 RESETEAR BINGO",
@@ -600,6 +630,109 @@ class VistaTablas:
 
         modal.focus_force()
         entry_nombre.focus()
+
+    def exportar_datos(self):
+        """Exportar datos del bingo a archivo JSON"""
+        if not self.bingo_actual:
+            messagebox.showerror("Error", "No hay bingo activo")
+            return
+
+        try:
+            # Obtener la carpeta de descargas
+            from utils.helpers import obtener_carpeta_descargas
+            downloads_path = obtener_carpeta_descargas()
+
+            # Crear nombre de archivo
+            nombre_archivo = f"backup_{self.bingo_actual.nombre.replace(' ', '_')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+            ruta_archivo = downloads_path / nombre_archivo
+
+            # Obtener todos los datos del bingo
+            datos_exportar = {
+                'nombre': self.bingo_actual.nombre,
+                'cantidad_cartones': self.bingo_actual.cantidad_cartones,
+                'precio_carton': self.bingo_actual.precio_carton,
+                'cartones_vendidos': self.bingo_actual.cartones_vendidos,
+                'cartones_apartados': self.bingo_actual.cartones_apartados,
+                'fecha_exportacion': datetime.now().isoformat(),
+                'version': '1.0'
+            }
+
+            # Guardar en archivo JSON
+            with open(ruta_archivo, 'w', encoding='utf-8') as f:
+                json.dump(datos_exportar, f, indent=2, ensure_ascii=False)
+
+            messagebox.showinfo(
+                "Exportación Exitosa",
+                f"✅ Datos exportados correctamente:\n\n"
+                f"📁 {nombre_archivo}\n\n"
+                f"💾 Guardado en: {ruta_archivo}\n\n"
+                f"📊 Cartones vendidos: {len(self.bingo_actual.cartones_vendidos)}\n"
+                f"⏳ Cartones apartados: {len(self.bingo_actual.cartones_apartados)}"
+            )
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Error exportando datos: {e}")
+
+    def importar_datos(self):
+        """Importar datos desde archivo JSON"""
+        if not self.bingo_actual:
+            messagebox.showerror("Error", "No hay bingo activo")
+            return
+
+        try:
+            # Abrir diálogo para seleccionar archivo
+            archivo = filedialog.askopenfilename(
+                title="Seleccionar archivo de datos",
+                filetypes=[("Archivos JSON", "*.json"), ("Todos los archivos", "*.*")],
+                defaultextension=".json"
+            )
+
+            if not archivo:
+                return
+
+            # Leer el archivo JSON
+            with open(archivo, 'r', encoding='utf-8') as f:
+                datos_importar = json.load(f)
+
+            # Validar que el archivo sea compatible
+            if 'cartones_vendidos' not in datos_importar or 'cartones_apartados' not in datos_importar:
+                messagebox.showerror("Error", "El archivo seleccionado no es un archivo de datos válido")
+                return
+
+            # Confirmar importación
+            confirmacion = messagebox.askyesno(
+                "Confirmar Importación",
+                f"¿Estás seguro de importar los datos?\n\n"
+                f"📋 Bingo: {datos_importar.get('nombre', 'Desconocido')}\n"
+                f"🎫 Cartones vendidos: {len(datos_importar['cartones_vendidos'])}\n"
+                f"⏳ Cartones apartados: {len(datos_importar['cartones_apartados'])}\n\n"
+                f"⚠️  Esta acción sobrescribirá los datos actuales del bingo."
+            )
+
+            if not confirmacion:
+                return
+
+            # Aplicar los datos importados
+            self.bingo_actual.cartones_vendidos = datos_importar['cartones_vendidos']
+            self.bingo_actual.cartones_apartados = datos_importar['cartones_apartados']
+            
+            # Guardar los cambios
+            self.bingo_actual.guardar_datos()
+
+            # Actualizar la interfaz
+            self.crear_botones_numeros()
+            self.actualizar_info_bingo()
+
+            messagebox.showinfo(
+                "Importación Exitosa",
+                f"✅ Datos importados correctamente:\n\n"
+                f"📊 Cartones vendidos: {len(self.bingo_actual.cartones_vendidos)}\n"
+                f"⏳ Cartones apartados: {len(self.bingo_actual.cartones_apartados)}\n"
+                f"💰 Ganancias actualizadas: ${self.bingo_actual.obtener_ganancias():,.2f}"
+            )
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Error importando datos: {e}")
 
     def exportar_pdf(self):
         """Exportar reporte PDF del bingo actual"""
