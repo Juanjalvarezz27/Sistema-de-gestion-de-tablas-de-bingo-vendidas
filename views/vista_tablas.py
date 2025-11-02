@@ -90,6 +90,7 @@ class VistaTablas:
             'accent_primary': '#00ff88',
             'accent_secondary': '#0099ff',
             'accent_danger': '#ff4757',
+            'accent_warning': '#f39c12',
             'text_primary': '#ffffff',
             'text_secondary': '#b0b0b0',
             'border': '#00ff88'
@@ -296,6 +297,7 @@ class VistaTablas:
 
             estado = self.bingo_actual.obtener_estado_carton(numero)
             vendido = estado.get('vendido', False)
+            apartado = estado.get('apartado', False)
             nombre = estado.get('nombre', '')
 
             # Configurar colores según estado
@@ -303,6 +305,10 @@ class VistaTablas:
                 texto = f"#{numero}\n✅ {nombre.split()[0] if nombre else 'Vendido'}"
                 color_bg = "#27ae60"
                 color_hover = "#219a52"
+            elif apartado:
+                texto = f"#{numero}\n⏳ {nombre.split()[0] if nombre else 'Apartado'}"
+                color_bg = "#f39c12"  # Color naranja para apartados
+                color_hover = "#e67e22"
             else:
                 texto = f"#{numero}\n🟢 Disponible"
                 color_bg = "#3498db"
@@ -337,7 +343,7 @@ class VistaTablas:
 
         # Buscar por nombre
         estado = self.bingo_actual.obtener_estado_carton(numero)
-        if estado.get('vendido', False) and busqueda in estado.get('nombre', '').lower():
+        if (estado.get('vendido', False) or estado.get('apartado', False)) and busqueda in estado.get('nombre', '').lower():
             return True
 
         return False
@@ -356,68 +362,118 @@ class VistaTablas:
     def actualizar_info_bingo(self):
         """Actualizar la información del bingo"""
         if self.bingo_actual:
-            vendidos = self.bingo_actual.obtener_cartones_vendidos()
-            ganancias = self.bingo_actual.obtener_ganancias()
-            texto = (f"Bingo: {self.bingo_actual.nombre} | "
-                    f"Cartones: {len(vendidos)}/{self.bingo_actual.cantidad_cartones} | "
-                    f"Precio: ${self.bingo_actual.precio_carton:,.2f} | "
-                    f"Ganancias: ${ganancias:,.2f}")
-            self.lbl_info_bingo.config(text=texto)
+            try:
+                vendidos = self.bingo_actual.obtener_cartones_vendidos()
+                apartados = self.bingo_actual.obtener_cartones_apartados()
+                ganancias = self.bingo_actual.obtener_ganancias()
+                texto = (f"Bingo: {self.bingo_actual.nombre} | "
+                        f"Cartones: {len(vendidos)}/{self.bingo_actual.cantidad_cartones} | "
+                        f"Apartados: {len(apartados)} | "
+                        f"Precio: ${self.bingo_actual.precio_carton:,.2f} | "
+                        f"Ganancias: ${ganancias:,.2f}")
+                self.lbl_info_bingo.config(text=texto)
+            except Exception as e:
+                print(f"Error actualizando info bingo: {e}")
+                texto = f"Bingo: {self.bingo_actual.nombre} | Error cargando información"
+                self.lbl_info_bingo.config(text=texto)
 
     def abrir_modal(self, numero):
         """Abrir modal para asignar/ver cartón"""
         estado_actual = self.bingo_actual.obtener_estado_carton(numero)
 
-        # Si ya está vendido, mostrar información con opción de cancelar
-        if estado_actual.get('vendido', False):
+        # Si ya está vendido o apartado, mostrar información con opciones
+        if estado_actual.get('vendido', False) or estado_actual.get('apartado', False):
             modal = tk.Toplevel(self.parent)
+            
+            estado_texto = "VENDIDO" if estado_actual.get('vendido', False) else "APARTADO"
+            color_estado = "#27ae60" if estado_actual.get('vendido', False) else "#f39c12"
+            
             modal.title(f"🎫 Información del Cartón #{numero}")
-            modal.geometry("500x400")
+            modal.geometry("550x450")
             modal.configure(bg=self.colors['bg_primary'])
             modal.transient(self.parent)
             modal.grab_set()
 
             # Centrar el modal
             modal.update_idletasks()
-            x = (modal.winfo_screenwidth() // 2) - (500 // 2)
-            y = (modal.winfo_screenheight() // 2) - (400 // 2)
-            modal.geometry(f"500x400+{x}+{y}")
+            x = (modal.winfo_screenwidth() // 2) - (550 // 2)
+            y = (modal.winfo_screenheight() // 2) - (450 // 2)
+            modal.geometry(f"550x450+{x}+{y}")
 
             frame_modal = tk.Frame(modal, bg=self.colors['bg_primary'], padx=25, pady=25)
             frame_modal.pack(fill="both", expand=True)
 
-            # Icono de cartón vendido
-            lbl_icono = tk.Label(frame_modal, text="✅", font=("Arial", 24), 
-                               bg=self.colors['bg_primary'], fg='#27ae60')
+            # Icono según estado
+            icono = "✅" if estado_actual.get('vendido', False) else "⏳"
+            lbl_icono = tk.Label(frame_modal, text=icono, font=("Arial", 24), 
+                               bg=self.colors['bg_primary'], fg=color_estado)
             lbl_icono.pack(pady=10)
 
             # Información del cartón
-            lbl_titulo = tk.Label(frame_modal, text=f"CARTÓN #{numero} - VENDIDO",
+            lbl_titulo = tk.Label(frame_modal, text=f"CARTÓN #{numero} - {estado_texto}",
                                 font=("Segoe UI", 16, "bold"), 
-                                bg=self.colors['bg_primary'], fg='#27ae60')
+                                bg=self.colors['bg_primary'], fg=color_estado)
             lbl_titulo.pack(pady=5)
 
             lbl_nombre = tk.Label(frame_modal, 
                                 text=f"👤 Asignado a: {estado_actual.get('nombre', '')}",
                                 font=("Segoe UI", 14), 
                                 bg=self.colors['bg_primary'], fg='#ffffff')
-            lbl_nombre.pack(pady=15)
+            lbl_nombre.pack(pady=10)
+
+            lbl_fecha = tk.Label(frame_modal, 
+                               text=f"📅 Fecha: {estado_actual.get('fecha_asignacion', 'No disponible')}",
+                               font=("Segoe UI", 12), 
+                               bg=self.colors['bg_primary'], fg='#cccccc')
+            lbl_fecha.pack(pady=5)
 
             # Frame para botones
             frame_botones = tk.Frame(frame_modal, bg=self.colors['bg_primary'])
             frame_botones.pack(pady=30)
 
-            def cancelar_venta():
+            def cancelar_asignacion():
                 if self.bingo_actual.liberar_carton(numero):
                     modal.destroy()
                     self.crear_botones_numeros()
                     self.actualizar_info_bingo()
-                    messagebox.showinfo("Éxito", f"✅ Venta del cartón #{numero} cancelada")
+                    messagebox.showinfo("Éxito", f"✅ Cartón #{numero} liberado correctamente")
                 else:
-                    messagebox.showerror("Error", "No se pudo cancelar la venta")
+                    messagebox.showerror("Error", "No se pudo liberar el cartón")
 
-            btn_cancelar = tk.Button(frame_botones, text="❌ CANCELAR VENTA",
-                                   command=cancelar_venta,
+            def cambiar_estado():
+                if estado_actual.get('vendido', False):
+                    # Cambiar de vendido a apartado
+                    if self.bingo_actual.apartar_carton(numero, estado_actual.get('nombre', '')):
+                        modal.destroy()
+                        self.crear_botones_numeros()
+                        self.actualizar_info_bingo()
+                        messagebox.showinfo("Éxito", f"✅ Cartón #{numero} cambiado a APARTADO")
+                else:
+                    # Cambiar de apartado a vendido
+                    if self.bingo_actual.vender_carton(numero, estado_actual.get('nombre', '')):
+                        modal.destroy()
+                        self.crear_botones_numeros()
+                        self.actualizar_info_bingo()
+                        messagebox.showinfo("Éxito", f"✅ Cartón #{numero} cambiado a VENDIDO")
+
+            # Botón para cambiar estado
+            if estado_actual.get('vendido', False):
+                btn_cambiar = tk.Button(frame_botones, text="⏳ MARCAR COMO APARTADO",
+                                      command=cambiar_estado,
+                                      bg="#f39c12", fg="white", font=("Segoe UI", 12, "bold"),
+                                      width=20, height=2, padx=25, pady=20,
+                                      relief='flat', cursor="hand2")
+                btn_cambiar.pack(side="left", padx=10)
+            else:
+                btn_cambiar = tk.Button(frame_botones, text="✅ MARCAR COMO VENDIDO",
+                                      command=cambiar_estado,
+                                      bg="#27ae60", fg="white", font=("Segoe UI", 12, "bold"),
+                                      width=20, height=2, padx=25, pady=20,
+                                      relief='flat', cursor="hand2")
+                btn_cambiar.pack(side="left", padx=10)
+
+            btn_cancelar = tk.Button(frame_botones, text="❌ LIBERAR CARTÓN",
+                                   command=cancelar_asignacion,
                                    bg="#e74c3c", fg="white", font=("Segoe UI", 12, "bold"),
                                    width=18, height=2, padx=25, pady=20,
                                    relief='flat', cursor="hand2")
@@ -432,7 +488,7 @@ class VistaTablas:
 
             return
 
-        # Modal para nueva venta
+        # Modal para nueva asignación (disponible)
         modal = tk.Toplevel(self.parent)
         modal.title(f"🎫 Asignar Cartón #{numero}")
         modal.geometry("500x350")
@@ -467,30 +523,65 @@ class VistaTablas:
         entry_nombre.pack(pady=15, ipady=10)
         entry_nombre.focus()
 
-        # Frame para botones
+        # Frame para botones de estado
+        frame_estado = tk.Frame(frame_modal, bg=self.colors['bg_primary'])
+        frame_estado.pack(pady=15)
+
+        lbl_estado = tk.Label(frame_estado, text="Seleccionar estado:",
+                            font=("Segoe UI", 11, "bold"), 
+                            bg=self.colors['bg_primary'], fg='#cccccc')
+        lbl_estado.pack(pady=5)
+
+        frame_botones_estado = tk.Frame(frame_estado, bg=self.colors['bg_primary'])
+        frame_botones_estado.pack(pady=10)
+
+        # Variable para el estado seleccionado
+        self.estado_seleccionado = tk.StringVar(value="vendido")
+
+        btn_vendido = tk.Radiobutton(frame_botones_estado, text="✅ VENDIDO", 
+                                   variable=self.estado_seleccionado, value="vendido",
+                                   font=("Segoe UI", 10, "bold"), 
+                                   bg=self.colors['bg_primary'], fg='#27ae60',
+                                   selectcolor='#1a1a2e', activebackground=self.colors['bg_primary'])
+        btn_vendido.pack(side="left", padx=10)
+
+        btn_apartado = tk.Radiobutton(frame_botones_estado, text="⏳ APARTADO", 
+                                    variable=self.estado_seleccionado, value="apartado",
+                                    font=("Segoe UI", 10, "bold"), 
+                                    bg=self.colors['bg_primary'], fg='#f39c12',
+                                    selectcolor='#1a1a2e', activebackground=self.colors['bg_primary'])
+        btn_apartado.pack(side="left", padx=10)
+
+        # Frame para botones de acción
         frame_botones = tk.Frame(frame_modal, bg=self.colors['bg_primary'])
         frame_botones.pack(pady=25)
 
-        def asignar_venta():
+        def asignar_carton():
             nombre = entry_nombre.get().strip()
             if not nombre:
                 messagebox.showerror("Error", "❌ Por favor ingrese un nombre")
                 return
 
-            # Asignar el cartón
-            self.bingo_actual.asignar_carton(numero, nombre)
+            estado = self.estado_seleccionado.get()
+            
+            if estado == "vendido":
+                self.bingo_actual.asignar_carton(numero, nombre)
+            else:
+                self.bingo_actual.apartar_carton(numero, nombre)
+                
             modal.destroy()
             self.crear_botones_numeros()
             self.actualizar_info_bingo()
 
-            messagebox.showinfo("Éxito", f"✅ Cartón #{numero} asignado a:\n{nombre}")
+            estado_texto = "VENDIDO" if estado == "vendido" else "APARTADO"
+            messagebox.showinfo("Éxito", f"✅ Cartón #{numero} {estado_texto.lower()} a:\n{nombre}")
 
         def cancelar():
             modal.destroy()
 
-        # Botones con mucho más padding
+        # Botones con mucho más padding (como estaban antes)
         btn_asignar = tk.Button(frame_botones, text="✅ ASIGNAR",
-                              command=asignar_venta,
+                              command=asignar_carton,
                               bg="#27ae60", fg="white", font=("Segoe UI", 12, "bold"),
                               width=14, height=2, padx=25, pady=20,
                               relief='flat', cursor="hand2")
@@ -504,7 +595,7 @@ class VistaTablas:
         btn_cancelar.pack(side="left", padx=15)
 
         # Enter para asignar, Escape para cancelar
-        modal.bind('<Return>', lambda e: asignar_venta())
+        modal.bind('<Return>', lambda e: asignar_carton())
         modal.bind('<Escape>', lambda e: cancelar())
 
         modal.focus_force()
@@ -519,7 +610,7 @@ class VistaTablas:
         """Resetear el bingo actual"""
         if self.bingo_actual and messagebox.askyesno("Confirmar",
             "¿Estás seguro de resetear todos los cartones?\n\n"
-            "Esta acción liberará todos los cartones vendidos."):
+            "Esta acción liberará todos los cartones vendidos y apartados."):
             self.bingo_actual.resetear()
             self.crear_botones_numeros()
             self.actualizar_info_bingo()

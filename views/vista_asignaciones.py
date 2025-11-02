@@ -8,19 +8,20 @@ class VistaAsignaciones:
         self.parent = parent
         self.controlador = controlador
         self.bingo_actual = None
-        
+
         self.colors = {
             'bg_primary': '#0f0f23',
-            'bg_secondary': '#1a1a2e', 
+            'bg_secondary': '#1a1a2e',
             'bg_card': '#16213e',
             'accent_primary': '#00ff88',
             'accent_secondary': '#0099ff',
             'accent_danger': '#ff4757',
+            'accent_warning': '#f39c12',
             'text_primary': '#ffffff',
             'text_secondary': '#b0b0b0',
             'border': '#00ff88'
         }
-        
+
         self.frame = tk.Frame(parent, bg=self.colors['bg_primary'])
         self.crear_interfaz()
 
@@ -92,7 +93,7 @@ class VistaAsignaciones:
         stats_frame.pack(side='right', padx=10)
 
         self.lbl_stats = tk.Label(stats_frame,
-            text="🎯 0 personas | 🎫 0 cartones vendidos",
+            text="🎯 0 personas | 🎫 0 cartones vendidos | ⏳ 0 apartados",
             font=('Segoe UI', 10, 'bold'),
             bg=self.colors['bg_primary'],
             fg=self.colors['text_secondary']
@@ -117,12 +118,12 @@ class VistaAsignaciones:
 
         if not asignaciones_por_persona:
             # Mostrar mensaje moderno CENTRADO si no hay asignaciones
-            frame_vacio = tk.Frame(self.frame_asignaciones, 
-                                 bg=self.colors['bg_primary'], 
-                                 padx=30, 
+            frame_vacio = tk.Frame(self.frame_asignaciones,
+                                 bg=self.colors['bg_primary'],
+                                 padx=30,
                                  pady=50)
             frame_vacio.pack(fill='both', expand=True)
-            
+
             lbl_vacio = tk.Label(frame_vacio,
                 text="👥 No hay asignaciones registradas\n\nLos cartones asignados aparecerán aquí",
                 font=('Segoe UI', 14),
@@ -139,13 +140,13 @@ class VistaAsignaciones:
         # Crear canvas y scrollbar
         canvas = tk.Canvas(frame_contenedor, bg=self.colors['bg_primary'], highlightthickness=0)
         scrollbar = tk.Scrollbar(frame_contenedor, orient="vertical", command=canvas.yview)
-        
+
         # Frame principal para la cuadrícula
         self.frame_lista = tk.Frame(canvas, bg=self.colors['bg_primary'])
-        
+
         # Configurar el canvas para el scroll
         self.frame_lista.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
-        
+
         # Crear ventana en el canvas
         canvas.create_window((0, 0), window=self.frame_lista, anchor="nw", tags="frame")
         canvas.configure(yscrollcommand=scrollbar.set)
@@ -157,19 +158,19 @@ class VistaAsignaciones:
             canvas_width = canvas.winfo_width()
             # Obtener el ancho requerido por el frame_lista
             lista_width = self.frame_lista.winfo_reqwidth()
-            
+
             # Si el frame_lista es más pequeño que el canvas, centrarlo
             if lista_width < canvas_width:
                 new_x = (canvas_width - lista_width) // 2
                 canvas.coords("frame", new_x, 0)
-        
+
         # Vincular el evento de redimensionamiento
         canvas.bind("<Configure>", centrar_contenido)
 
         # Configurar scroll con mouse
         def on_mousewheel(event):
             canvas.yview_scroll(int(-1*(event.delta/120)), "units")
-        
+
         canvas.bind("<MouseWheel>", on_mousewheel)
         self.frame_lista.bind("<MouseWheel>", on_mousewheel)
 
@@ -192,7 +193,7 @@ class VistaAsignaciones:
 
         # CONFIGURACIÓN FIJA DE 4 COLUMNAS
         COLUMNAS = 4
-        
+
         # Tamaño UNIFORME de tarjetas
         ancho_tarjeta = 420  # Ancho uniforme para todas
         alto_tarjeta_base = 280  # Alto base
@@ -205,31 +206,34 @@ class VistaAsignaciones:
         # Configurar grid - todas las columnas con mismo peso
         for i in range(filas):
             self.frame_lista.grid_rowconfigure(i, weight=0)
-        
+
         # Configurar 4 columnas con el mismo peso para centrado
         for i in range(COLUMNAS):
             self.frame_lista.grid_columnconfigure(i, weight=1)
 
         # Crear tarjetas en grid - 4 COLUMNAS CENTRADAS CON ANCHO UNIFORME
-        for idx, (nombre, cartones) in enumerate(personas):
+        for idx, (nombre, cartones_info) in enumerate(personas):
             fila = idx // COLUMNAS
             columna = idx % COLUMNAS
 
             # Calcular altura dinámica basada en la cantidad de cartones
             cartones_por_fila = 3  # SIEMPRE 3 COLUMNAS PARA CARTONES
-            filas_cartones = (len(cartones) + cartones_por_fila - 1) // cartones_por_fila
+            filas_cartones = (len(cartones_info['cartones']) + cartones_por_fila - 1) // cartones_por_fila
             alto_tarjeta = alto_tarjeta_base + (filas_cartones * alto_extra_por_fila)
 
             # Crear tarjeta con tamaño UNIFORME
-            self.crear_tarjeta_persona(nombre, cartones, fila, columna, ancho_tarjeta, alto_tarjeta)
+            self.crear_tarjeta_persona(nombre, cartones_info, fila, columna, ancho_tarjeta, alto_tarjeta)
 
         # Forzar actualización del layout
         self.frame_lista.update_idletasks()
 
-    def crear_tarjeta_persona(self, nombre, cartones, fila, columna, ancho, alto):
+    def crear_tarjeta_persona(self, nombre, cartones_info, fila, columna, ancho, alto):
         """Crear tarjeta moderna para una persona con tamaño UNIFORME"""
+        cartones = cartones_info['cartones']
+        es_apartado = cartones_info['apartado']
+
         # Frame principal de la tarjeta
-        frame_persona = tk.Frame(self.frame_lista, 
+        frame_persona = tk.Frame(self.frame_lista,
                                bg=self.colors['bg_card'],
                                relief='flat',
                                bd=1,
@@ -237,7 +241,7 @@ class VistaAsignaciones:
                                height=alto)
         frame_persona.grid(row=fila, column=columna, padx=15, pady=15, sticky="nsew")
         frame_persona.grid_propagate(False)
-        
+
         # Contenedor principal dentro de la tarjeta
         frame_contenido = tk.Frame(frame_persona, bg=self.colors['bg_card'], padx=20, pady=18)
         frame_contenido.pack(fill='both', expand=True)
@@ -247,8 +251,10 @@ class VistaAsignaciones:
         frame_header.pack(fill='x', pady=(0, 15))
 
         # Icono y nombre
-        lbl_icono = tk.Label(frame_header, text="👤", font=('Segoe UI', 16),
-                           bg=self.colors['bg_card'], fg=self.colors['accent_primary'])
+        icono = "⏳" if es_apartado else "👤"
+        lbl_icono = tk.Label(frame_header, text=icono, font=('Segoe UI', 16),
+                           bg=self.colors['bg_card'], 
+                           fg=self.colors['accent_warning'] if es_apartado else self.colors['accent_primary'])
         lbl_icono.pack(side='left', padx=(0, 15))
 
         # Nombre con ajuste automático
@@ -256,46 +262,61 @@ class VistaAsignaciones:
             text=nombre,
             font=('Segoe UI', 14, 'bold'),
             bg=self.colors['bg_card'],
-            fg=self.colors['accent_primary'],
+            fg=self.colors['accent_warning'] if es_apartado else self.colors['accent_primary'],
             wraplength=ancho - 180,
             justify='left'
         )
         lbl_nombre.pack(side='left', fill='x', expand=True)
 
         # Badge de cantidad
-        badge_frame = tk.Frame(frame_header, bg=self.colors['accent_secondary'], 
+        badge_color = self.colors['accent_warning'] if es_apartado else self.colors['accent_secondary']
+        badge_frame = tk.Frame(frame_header, bg=badge_color,
                              relief='flat', bd=1)
         badge_frame.pack(side='right')
 
         lbl_badge = tk.Label(badge_frame,
             text=f"{len(cartones)}",
             font=('Segoe UI', 12, 'bold'),
-            bg=self.colors['accent_secondary'],
+            bg=badge_color,
             fg='white',
             padx=10,
             pady=5
         )
         lbl_badge.pack()
 
-        # Información de pago
-        frame_pago = tk.Frame(frame_contenido, bg=self.colors['bg_card'])
-        frame_pago.pack(fill='x', pady=(0, 15))
+        # Información de pago (solo para vendidos)
+        if not es_apartado:
+            frame_pago = tk.Frame(frame_contenido, bg=self.colors['bg_card'])
+            frame_pago.pack(fill='x', pady=(0, 15))
 
-        total_pagado = len(cartones) * self.bingo_actual.precio_carton
-        lbl_pago = tk.Label(frame_pago,
-            text=f"💰 Total pagado: ${total_pagado:,.2f}",
-            font=('Segoe UI', 12, 'bold'),
-            bg=self.colors['bg_card'],
-            fg=self.colors['text_primary']
-        )
-        lbl_pago.pack(anchor='w')
+            total_pagado = len(cartones) * self.bingo_actual.precio_carton
+            lbl_pago = tk.Label(frame_pago,
+                text=f"💰 Total pagado: ${total_pagado:,.2f}",
+                font=('Segoe UI', 12, 'bold'),
+                bg=self.colors['bg_card'],
+                fg=self.colors['text_primary']
+            )
+            lbl_pago.pack(anchor='w')
+        else:
+            # Para apartados, mostrar mensaje diferente
+            frame_pago = tk.Frame(frame_contenido, bg=self.colors['bg_card'])
+            frame_pago.pack(fill='x', pady=(0, 15))
+
+            lbl_pago = tk.Label(frame_pago,
+                text=f"⏳ Estado: APARTADO - Pendiente de pago",
+                font=('Segoe UI', 12, 'bold'),
+                bg=self.colors['bg_card'],
+                fg=self.colors['accent_warning']
+            )
+            lbl_pago.pack(anchor='w')
 
         # Frame para los cartones
         frame_cartones = tk.Frame(frame_contenido, bg=self.colors['bg_card'])
         frame_cartones.pack(fill='both', expand=True)
 
+        estado_texto = "apartados" if es_apartado else "asignados"
         lbl_cartones_titulo = tk.Label(frame_cartones,
-            text="🎫 Cartones asignados:",
+            text=f"🎫 Cartones {estado_texto}:",
             font=('Segoe UI', 12, 'bold'),
             bg=self.colors['bg_card'],
             fg=self.colors['text_secondary']
@@ -325,11 +346,13 @@ class VistaAsignaciones:
             fila_carton = idx // CARTONES_POR_FILA
             columna_carton = idx % CARTONES_POR_FILA
 
+            btn_color = self.colors['accent_warning'] if es_apartado else self.colors['accent_secondary']
+            
             btn_carton = tk.Button(frame_grid_cartones,
                 text=f"#{carton}",
                 command=lambda c=carton: self.ver_detalle_carton(c),
                 font=('Segoe UI', 10, 'bold'),
-                bg=self.colors['accent_secondary'],
+                bg=btn_color,
                 fg='white',
                 relief='flat',
                 cursor='hand2',
@@ -348,19 +371,30 @@ class VistaAsignaciones:
                 frame_vacio.grid_propagate(False)
 
     def obtener_asignaciones_por_persona(self):
-        """Obtener asignaciones agrupadas por persona"""
+        """Obtener asignaciones agrupadas por persona incluyendo apartados"""
         asignaciones = {}
 
         if not self.bingo_actual:
             return asignaciones
 
+        # Procesar cartones vendidos
         for numero in range(1, self.bingo_actual.cantidad_cartones + 1):
             estado = self.bingo_actual.obtener_estado_carton(numero)
             if estado.get('vendido', False):
                 nombre = estado.get('nombre', 'Sin nombre')
                 if nombre not in asignaciones:
-                    asignaciones[nombre] = []
-                asignaciones[nombre].append(numero)
+                    asignaciones[nombre] = {'cartones': [], 'apartado': False}
+                asignaciones[nombre]['cartones'].append(numero)
+
+        # Procesar cartones apartados
+        for numero in range(1, self.bingo_actual.cantidad_cartones + 1):
+            estado = self.bingo_actual.obtener_estado_carton(numero)
+            if estado.get('apartado', False) and not estado.get('vendido', False):
+                nombre = estado.get('nombre', 'Sin nombre')
+                if nombre not in asignaciones:
+                    asignaciones[nombre] = {'cartones': [], 'apartado': True}
+                asignaciones[nombre]['cartones'].append(numero)
+                asignaciones[nombre]['apartado'] = True
 
         return asignaciones
 
@@ -370,11 +404,17 @@ class VistaAsignaciones:
             return
 
         estado = self.bingo_actual.obtener_estado_carton(numero)
-        if estado.get('vendido', False):
+        if estado.get('vendido', False) or estado.get('apartado', False):
             # Crear modal moderno
             modal = tk.Toplevel(self.parent)
+            
+            es_apartado = estado.get('apartado', False)
+            estado_texto = "APARTADO" if es_apartado else "VENDIDO"
+            color_estado = self.colors['accent_warning'] if es_apartado else '#27ae60'
+            icono = "⏳" if es_apartado else "✅"
+            
             modal.title(f"🎫 Detalle Cartón #{numero}")
-            modal.geometry("450x300")
+            modal.geometry("450x350")
             modal.configure(bg=self.colors['bg_primary'])
             modal.transient(self.parent)
             modal.grab_set()
@@ -382,26 +422,26 @@ class VistaAsignaciones:
             # Centrar el modal
             modal.update_idletasks()
             x = (modal.winfo_screenwidth() // 2) - (450 // 2)
-            y = (modal.winfo_screenheight() // 2) - (300 // 2)
-            modal.geometry(f"450x300+{x}+{y}")
+            y = (modal.winfo_screenheight() // 2) - (350 // 2)
+            modal.geometry(f"450x350+{x}+{y}")
 
             frame_modal = tk.Frame(modal, bg=self.colors['bg_primary'], padx=25, pady=25)
             frame_modal.pack(fill="both", expand=True)
 
             # Icono
-            lbl_icono = tk.Label(frame_modal, text="🎫", font=("Arial", 28), 
-                               bg=self.colors['bg_primary'], fg=self.colors['accent_primary'])
+            lbl_icono = tk.Label(frame_modal, text=icono, font=("Arial", 28),
+                               bg=self.colors['bg_primary'], fg=color_estado)
             lbl_icono.pack(pady=10)
 
             # Información del cartón
             lbl_titulo = tk.Label(frame_modal, text=f"CARTÓN #{numero}",
-                                font=("Segoe UI", 18, "bold"), 
-                                bg=self.colors['bg_primary'], fg=self.colors['accent_primary'])
+                                font=("Segoe UI", 18, "bold"),
+                                bg=self.colors['bg_primary'], fg=color_estado)
             lbl_titulo.pack(pady=5)
 
-            lbl_estado = tk.Label(frame_modal, text="✅ VENDIDO",
-                                font=("Segoe UI", 12, "bold"), 
-                                bg=self.colors['bg_primary'], fg='#27ae60')
+            lbl_estado = tk.Label(frame_modal, text=f"{icono} {estado_texto}",
+                                font=("Segoe UI", 12, "bold"),
+                                bg=self.colors['bg_primary'], fg=color_estado)
             lbl_estado.pack(pady=5)
 
             # Detalles
@@ -410,7 +450,7 @@ class VistaAsignaciones:
 
             detalles = [
                 f"👤 {estado.get('nombre', '')}",
-                f"💰 ${self.bingo_actual.precio_carton:,.2f}",
+                f"💰 ${self.bingo_actual.precio_carton:,.2f}" if not es_apartado else "⏳ Pendiente de pago",
                 f"📅 {estado.get('fecha_asignacion', 'No disponible')}"
             ]
 
@@ -427,12 +467,12 @@ class VistaAsignaciones:
             # Botón cerrar
             btn_cerrar = tk.Button(frame_modal, text="👌 CERRAR",
                                  command=modal.destroy,
-                                 bg=self.colors['accent_secondary'], 
-                                 fg="white", 
+                                 bg=self.colors['accent_secondary'],
+                                 fg="white",
                                  font=("Segoe UI", 12, "bold"),
                                  padx=30,
                                  pady=12,
-                                 relief='flat', 
+                                 relief='flat',
                                  cursor="hand2",
                                  bd=0)
             btn_cerrar.pack(pady=20)
@@ -456,17 +496,21 @@ class VistaAsignaciones:
             contenido.append("# EXPORTAR VENDIDOS (TXT)")
             contenido.append("")
 
-            if asignaciones:
-                for idx, (nombre, cartones) in enumerate(sorted(asignaciones.items()), 1):
+            # Filtrar solo vendidos (no apartados)
+            asignaciones_vendidas = {nombre: info for nombre, info in asignaciones.items() if not info['apartado']}
+
+            if asignaciones_vendidas:
+                for idx, (nombre, info) in enumerate(sorted(asignaciones_vendidas.items()), 1):
+                    cartones = info['cartones']
                     contenido.append(f"## {idx}. {nombre}")
                     total_pagado = len(cartones) * self.bingo_actual.precio_carton
                     contenido.append(f"- **Total pagado:** ${total_pagado:.2f}")
                     contenido.append(f"- **Cartones asignados:**")
                     contenido.append("")
-                    
+
                     # Mostrar cartones en formato de tabla con 3 columnas
                     cartones_ordenados = sorted(cartones)
-                    
+
                     if cartones_ordenados:
                         # Dividir en filas de 3 cartones (nuevo formato)
                         CARTONES_POR_FILA = 3
@@ -475,7 +519,7 @@ class VistaAsignaciones:
                             # Formatear la línea con 3 columnas
                             linea = "   " + "   ".join(f"#{carton:<4}" for carton in grupo)
                             contenido.append(linea)
-                    
+
                     contenido.append("")
                     contenido.append("---")
                     contenido.append("")
@@ -485,9 +529,9 @@ class VistaAsignaciones:
                 contenido.append("")
 
             # Agregar resumen final
-            total_personas = len(asignaciones)
-            total_cartones = sum(len(cartones) for cartones in asignaciones.values())
-            contenido.append(f"### {total_personas} personas | EBI {total_cartones} cartones vendidos")
+            total_personas = len(asignaciones_vendidas)
+            total_cartones = sum(len(info['cartones']) for info in asignaciones_vendidas.values())
+            contenido.append(f"### {total_personas} personas | {total_cartones} cartones vendidos")
             contenido.append("")
             contenido.append("---")
 
@@ -498,8 +542,8 @@ class VistaAsignaciones:
                 "Exportación Exitosa",
                 f"✅ Archivo de tablas vendidas generado:\n\n"
                 f"📁 {nombre_archivo}\n\n"
-                f"👥 Personas: {len(asignaciones)}\n"
-                f"🎫 Cartones vendidos: {sum(len(cartones) for cartones in asignaciones.values())}\n"
+                f"👥 Personas: {total_personas}\n"
+                f"🎫 Cartones vendidos: {total_cartones}\n"
                 f"💾 Guardado en: {ruta_archivo}"
             )
 
@@ -519,10 +563,11 @@ class VistaAsignaciones:
             nombre_archivo = f"tablas_disponibles_{self.bingo_actual.nombre.replace(' ', '_')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
             ruta_archivo = downloads_path / nombre_archivo
 
-            # Obtener cartones disponibles
+            # Obtener cartones disponibles (no vendidos ni apartados)
             cartones_vendidos = self.bingo_actual.obtener_cartones_vendidos()
+            cartones_apartados = self.bingo_actual.obtener_cartones_apartados()
             cartones_disponibles = [num for num in range(1, self.bingo_actual.cantidad_cartones + 1)
-                                  if num not in cartones_vendidos]
+                                  if num not in cartones_vendidos and num not in cartones_apartados]
 
             contenido = []
             contenido.append("=" * 60)
@@ -544,7 +589,7 @@ class VistaAsignaciones:
                     contenido.append(linea)
             else:
                 contenido.append("NO HAY CARTONES DISPONIBLES")
-                contenido.append("TODOS LOS CARTONES ESTÁN VENDIDOS")
+                contenido.append("TODOS LOS CARTONES ESTÁN VENDIDOS O APARTADOS")
 
             contenido.append("")
             contenido.append("=" * 60)
@@ -569,12 +614,14 @@ class VistaAsignaciones:
         if self.bingo_actual:
             texto = f"👥 ASIGNACIONES - Bingo: {self.bingo_actual.nombre}"
             self.lbl_info_bingo.config(text=texto)
-            
+
             # Actualizar estadísticas
             asignaciones = self.obtener_asignaciones_por_persona()
             total_personas = len(asignaciones)
-            total_cartones = sum(len(cartones) for cartones in asignaciones.values())
-            self.lbl_stats.config(text=f"🎯 {total_personas} personas | 🎫 {total_cartones} cartones vendidos")
+            total_cartones_vendidos = sum(len(info['cartones']) for info in asignaciones.values() if not info['apartado'])
+            total_cartones_apartados = sum(len(info['cartones']) for info in asignaciones.values() if info['apartado'])
+            
+            self.lbl_stats.config(text=f"🎯 {total_personas} personas | 🎫 {total_cartones_vendidos} vendidos | ⏳ {total_cartones_apartados} apartados")
 
     def volver_gestor(self):
         """Volver al gestor de bingos"""

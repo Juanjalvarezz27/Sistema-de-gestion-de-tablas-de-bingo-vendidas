@@ -334,8 +334,12 @@ class VistaGestorBingos:
             frame_info = tk.Frame(frame_bingo, bg=self.colors['bg_card'])
             frame_info.pack(fill='x', pady=(10, 0))
 
+            cartones_vendidos = len(bingo.obtener_cartones_vendidos())
+            cartones_apartados = len(bingo.obtener_cartones_apartados())
+
             detalles = [
                 f"📊 Cartones: {cartones_vendidos}/{bingo.cantidad_cartones}",
+                f"⏳ Apartados: {cartones_apartados}",
                 f"💰 Precio: ${bingo.precio_carton:,.2f}",
                 f"💵 Ganancias: ${bingo.obtener_ganancias():,.2f}"
             ]
@@ -343,11 +347,11 @@ class VistaGestorBingos:
             for detalle in detalles:
                 lbl_detalle = tk.Label(frame_info,
                     text=detalle,
-                    font=('Segoe UI', 11),
+                    font=('Segoe UI', 10),
                     bg=self.colors['bg_card'],
                     fg=self.colors['text_secondary']
                 )
-                lbl_detalle.pack(side='left', padx=(0, 20))
+                lbl_detalle.pack(side='left', padx=(0, 15))
 
             frame_botones = tk.Frame(frame_bingo, bg=self.colors['bg_card'])
             frame_botones.pack(fill='x', pady=(15, 0))
