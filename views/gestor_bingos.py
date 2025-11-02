@@ -11,7 +11,7 @@ class VistaGestorBingos:
         self.bingos = self.cargar_bingos_existentes()
         self.colors = {
             'bg_primary': '#0f0f23',
-            'bg_secondary': '#1a1a2e', 
+            'bg_secondary': '#1a1a2e',
             'bg_card': '#16213e',
             'accent_primary': '#00ff88',
             'accent_secondary': '#0099ff',
@@ -20,7 +20,7 @@ class VistaGestorBingos:
             'text_secondary': '#b0b0b0',
             'border': '#00ff88'
         }
-        
+
         self.frame = tk.Frame(parent, bg=self.colors['bg_primary'])
         self.crear_interfaz()
 
@@ -51,39 +51,39 @@ class VistaGestorBingos:
         header_frame.pack_propagate(False)
 
         btn_volver = tk.Button(header_frame,
-            text="‹ VOLVER AL MENÚ",
-            command=self.volver_menu,
-            font=('Segoe UI', 11, 'bold'),
-            bg='#2d2d4d',
-            fg=self.colors['text_secondary'],
-            padx=20,
-            pady=10,
-            relief='flat',
-            cursor='hand2',
-            bd=0
-        )
+                             text="‹ VOLVER AL MENÚ",
+                             command=self.volver_menu,
+                             font=('Segoe UI', 11, 'bold'),
+                             bg='#2d2d4d',
+                             fg=self.colors['text_secondary'],
+                             padx=20,
+                             pady=10,
+                             relief='flat',
+                             cursor='hand2',
+                             bd=0
+                             )
         btn_volver.pack(side='left', padx=10, pady=10)
 
         self.titulo = tk.Label(header_frame,
-            text="🎯 GESTOR DE BINGOS",
-            font=('Segoe UI', 20, 'bold'),
-            bg=self.colors['bg_secondary'],
-            fg=self.colors['accent_primary']
-        )
+                             text="🎯 GESTOR DE BINGOS",
+                             font=('Segoe UI', 20, 'bold'),
+                             bg=self.colors['bg_secondary'],
+                             fg=self.colors['accent_primary']
+                             )
         self.titulo.pack(side='left', padx=20, pady=10)
 
         btn_nuevo = tk.Button(header_frame,
-            text="+ NUEVO BINGO",
-            command=self.mostrar_formulario_creacion,
-            font=('Segoe UI', 12, 'bold'),
-            bg=self.colors['accent_primary'],
-            fg=self.colors['bg_primary'],
-            padx=25,
-            pady=12,
-            relief='flat',
-            cursor='hand2',
-            bd=0
-        )
+                            text="+ NUEVO BINGO",
+                            command=self.mostrar_formulario_creacion,
+                            font=('Segoe UI', 12, 'bold'),
+                            bg=self.colors['accent_primary'],
+                            fg=self.colors['bg_primary'],
+                            padx=25,
+                            pady=12,
+                            relief='flat',
+                            cursor='hand2',
+                            bd=0
+                            )
         btn_nuevo.pack(side='right', padx=10, pady=10)
 
         self.frame_principal = tk.Frame(self.frame, bg=self.colors['bg_primary'])
@@ -97,21 +97,21 @@ class VistaGestorBingos:
 
         frame_contenedor = tk.Frame(self.frame_principal, bg=self.colors['bg_primary'])
         frame_contenedor.pack(expand=True, fill='both')
-        
-        frame_form = tk.Frame(frame_contenedor, 
+
+        frame_form = tk.Frame(frame_contenedor,
                             bg=self.colors['bg_card'],
                             relief='flat',
                             bd=1,
-                            padx=30, 
+                            padx=30,
                             pady=30)
         frame_form.pack(expand=True)
 
         titulo_form = tk.Label(frame_form,
-            text="CREAR NUEVO BINGO",
-            font=('Segoe UI', 20, 'bold'),
-            bg=self.colors['bg_card'],
-            fg=self.colors['accent_primary']
-        )
+                             text="CREAR NUEVO BINGO",
+                             font=('Segoe UI', 20, 'bold'),
+                             bg=self.colors['bg_card'],
+                             fg=self.colors['accent_primary']
+                             )
         titulo_form.pack(pady=(0, 20))
 
         campos = [
@@ -125,78 +125,78 @@ class VistaGestorBingos:
             frame_campo.pack(fill='x', pady=12)
 
             lbl = tk.Label(frame_campo,
-                text=label_text,
-                font=('Segoe UI', 11, 'bold'),
-                bg=self.colors['bg_card'],
-                fg=self.colors['text_primary']
-            )
+                         text=label_text,
+                         font=('Segoe UI', 11, 'bold'),
+                         bg=self.colors['bg_card'],
+                         fg=self.colors['text_primary']
+                         )
             lbl.pack(anchor='w', pady=(0, 5))
 
             entry = tk.Entry(frame_campo,
-                font=('Segoe UI', 12),
-                bg='#2a2a4a',
-                fg='white',
-                insertbackground='white',
-                relief='flat',
-                bd=0,
-                width=25
-            )
+                           font=('Segoe UI', 12),
+                           bg='#2a2a4a',
+                           fg='white',
+                           insertbackground='white',
+                           relief='flat',
+                           bd=0,
+                           width=25
+                           )
             entry.pack(fill='x', ipady=8, padx=2)
-            
+
             entry_frame = tk.Frame(frame_campo, bg=self.colors['border'], height=2)
             entry_frame.pack(fill='x', padx=2)
             entry_frame.pack_propagate(False)
-            
+
             if placeholder:
                 entry.insert(0, placeholder)
-            
+
             setattr(self, attr_name, entry)
 
-        frame_ganancias = tk.Frame(frame_form, 
-                                 bg='#1a1a3a', 
-                                 relief='flat', 
+        frame_ganancias = tk.Frame(frame_form,
+                                 bg='#1a1a3a',
+                                 relief='flat',
                                  bd=1,
                                  padx=15,
                                  pady=10)
         frame_ganancias.pack(fill='x', pady=15)
 
         self.lbl_ganancias = tk.Label(frame_ganancias,
-            text="🎰 Ganancias potenciales: $0.00",
-            font=('Segoe UI', 12, 'bold'),
-            bg='#1a1a3a',
-            fg=self.colors['accent_primary']
-        )
+                                    text="🎰 Ganancias potenciales: $0.00",
+                                    font=('Segoe UI', 12, 'bold'),
+                                    bg='#1a1a3a',
+                                    fg=self.colors['accent_primary']
+                                    )
         self.lbl_ganancias.pack()
 
         frame_botones = tk.Frame(frame_form, bg=self.colors['bg_card'])
         frame_botones.pack(pady=20)
 
         btn_crear = tk.Button(frame_botones,
-            text="🎯 CREAR BINGO",
-            command=self.crear_bingo,
-            font=('Segoe UI', 12, 'bold'),
-            bg=self.colors['accent_primary'],
-            fg=self.colors['bg_primary'],
-            padx=25,
-            pady=12,
-            relief='flat',
-            cursor='hand2',
-            bd=0
-        )
+                            text="🎯 CREAR BINGO",
+                            command=self.crear_bingo,
+                            font=('Segoe UI', 12, 'bold'),
+                            bg=self.colors['accent_primary'],
+                            fg=self.colors['bg_primary'],
+                            padx=25,
+                            pady=12,
+                            relief='flat',
+                            cursor='hand2',
+                            bd=0
+                            )
         btn_crear.pack(side='left', padx=10)
 
         btn_cancelar = tk.Button(frame_botones,
-            text="❌ CANCELAR",
-            command=self.mostrar_lista_bingos,
-            font=('Segoe UI', 12, 'bold'),
-            bg=self.colors['accent_danger'],
-            fg='white',
-            padx=25,
-            pady=12,
-            relief='flat',
-            cursor='hand2',
-            bd=0
-        )
+                               text="❌ CANCELAR",
+                               command=self.mostrar_lista_bingos,
+                               font=('Segoe UI', 12, 'bold'),
+                               bg=self.colors['accent_danger'],
+                               fg='white',
+                               padx=25,
+                               pady=12,
+                               relief='flat',
+                               cursor='hand2',
+                               bd=0
+                               )
         btn_cancelar.pack(side='left', padx=10)
 
         self.entry_cartones.bind('<KeyRelease>', self.actualizar_ganancias)
@@ -225,23 +225,23 @@ class VistaGestorBingos:
             frame_vacio.pack(expand=True)
 
             lbl_vacio = tk.Label(frame_vacio,
-                text="🎯 No hay bingos creados aún\n\nCrea tu primer bingo para comenzar",
-                font=('Segoe UI', 14),
-                bg=self.colors['bg_card'],
-                fg=self.colors['text_secondary'],
-                justify='center')
+                               text="🎯 No hay bingos creados aún\n\nCrea tu primer bingo para comenzar",
+                               font=('Segoe UI', 14),
+                               bg=self.colors['bg_card'],
+                               fg=self.colors['text_secondary'],
+                               justify='center')
             lbl_vacio.pack()
 
             btn_crear = tk.Button(frame_vacio,
-                text="🆕 CREAR PRIMER BINGO",
-                command=self.mostrar_formulario_creacion,
-                font=('Segoe UI', 12, 'bold'),
-                bg=self.colors['accent_primary'],
-                fg=self.colors['bg_primary'],
-                padx=20,
-                pady=12,
-                relief='flat',
-                cursor='hand2')
+                                text="🆕 CREAR PRIMER BINGO",
+                                command=self.mostrar_formulario_creacion,
+                                font=('Segoe UI', 12, 'bold'),
+                                bg=self.colors['accent_primary'],
+                                fg=self.colors['bg_primary'],
+                                padx=20,
+                                pady=12,
+                                relief='flat',
+                                cursor='hand2')
             btn_crear.pack(pady=20)
             return
 
@@ -296,39 +296,39 @@ class VistaGestorBingos:
             fila = i // columnas
             columna = i % columnas
 
-            frame_bingo = tk.Frame(frame_lista, 
-                                bg=self.colors['bg_card'],
-                                relief='flat',
-                                bd=1,
-                                padx=25, 
-                                pady=20)
+            frame_bingo = tk.Frame(frame_lista,
+                                 bg=self.colors['bg_card'],
+                                 relief='flat',
+                                 bd=1,
+                                 padx=25,
+                                 pady=20)
             frame_bingo.grid(row=fila, column=columna, padx=15, pady=15, sticky='n')
 
             frame_header = tk.Frame(frame_bingo, bg=self.colors['bg_card'])
             frame_header.pack(fill='x')
 
             lbl_nombre = tk.Label(frame_header,
-                text=f"🎯 {bingo.nombre}",
-                font=('Segoe UI', 16, 'bold'),
-                bg=self.colors['bg_card'],
-                fg=self.colors['accent_primary']
-            )
+                                text=f"🎯 {bingo.nombre}",
+                                font=('Segoe UI', 16, 'bold'),
+                                bg=self.colors['bg_card'],
+                                fg=self.colors['accent_primary']
+                                )
             lbl_nombre.pack(side='left')
 
             cartones_vendidos = len(bingo.obtener_cartones_vendidos())
             porcentaje = (cartones_vendidos / bingo.cantidad_cartones) * 100 if bingo.cantidad_cartones > 0 else 0
-            
+
             badge_frame = tk.Frame(frame_header, bg='#2d2d4d', relief='flat', bd=1)
             badge_frame.pack(side='right', padx=10)
-            
+
             lbl_badge = tk.Label(badge_frame,
-                text=f"{porcentaje:.1f}% Vendido",
-                font=('Segoe UI', 10, 'bold'),
-                bg='#2d2d4d',
-                fg=self.colors['accent_primary'],
-                padx=10,
-                pady=5
-            )
+                               text=f"{porcentaje:.1f}% Vendido",
+                               font=('Segoe UI', 10, 'bold'),
+                               bg='#2d2d4d',
+                               fg=self.colors['accent_primary'],
+                               padx=10,
+                               pady=5
+                               )
             lbl_badge.pack()
 
             frame_info = tk.Frame(frame_bingo, bg=self.colors['bg_card'])
@@ -346,11 +346,11 @@ class VistaGestorBingos:
 
             for detalle in detalles:
                 lbl_detalle = tk.Label(frame_info,
-                    text=detalle,
-                    font=('Segoe UI', 10),
-                    bg=self.colors['bg_card'],
-                    fg=self.colors['text_secondary']
-                )
+                                     text=detalle,
+                                     font=('Segoe UI', 10),
+                                     bg=self.colors['bg_card'],
+                                     fg=self.colors['text_secondary']
+                                     )
                 lbl_detalle.pack(side='left', padx=(0, 15))
 
             frame_botones = tk.Frame(frame_bingo, bg=self.colors['bg_card'])
@@ -365,17 +365,17 @@ class VistaGestorBingos:
 
             for texto, comando, color in botones:
                 btn = tk.Button(frame_botones,
-                    text=texto,
-                    command=lambda b=bingo, c=comando: c(b),
-                    font=('Segoe UI', 10, 'bold'),
-                    bg=color,
-                    fg='white',
-                    padx=15,
-                    pady=8,
-                    relief='flat',
-                    cursor='hand2',
-                    bd=0
-                )
+                              text=texto,
+                              command=lambda b=bingo, c=comando: c(b),
+                              font=('Segoe UI', 10, 'bold'),
+                              bg=color,
+                              fg='white',
+                              padx=15,
+                              pady=8,
+                              relief='flat',
+                              cursor='hand2',
+                              bd=0
+                              )
                 btn.pack(side='left', padx=5)
 
         # Asegurar que las columnas tengan el mismo peso
@@ -390,8 +390,8 @@ class VistaGestorBingos:
 
     def eliminar_bingo(self, bingo):
         if messagebox.askyesno("Confirmar Eliminación",
-            f"¿Estás seguro de eliminar el bingo '{bingo.nombre}'?\n\n"
-            f"Esta acción no se puede deshacer y se perderán todos los datos."):
+                             f"¿Estás seguro de eliminar el bingo '{bingo.nombre}'?\n\n"
+                             f"Esta acción no se puede deshacer y se perderán todos los datos."):
             if bingo.eliminar():
                 self.bingos.remove(bingo)
                 messagebox.showinfo("Éxito", f"Bingo '{bingo.nombre}' eliminado correctamente")
@@ -429,12 +429,41 @@ class VistaGestorBingos:
                 messagebox.showerror("Error", f"❌ Ya existe un bingo con el nombre '{nombre}'")
                 return
 
+        # Mostrar mensaje de progreso para generación de cartones
+        progress_modal = tk.Toplevel(self.parent)
+        progress_modal.title("Generando Cartones...")
+        progress_modal.geometry("400x150")
+        progress_modal.configure(bg=self.colors['bg_primary'])
+        progress_modal.transient(self.parent)
+
+        # Centrar el modal
+        progress_modal.update_idletasks()
+        x = (progress_modal.winfo_screenwidth() // 2) - (400 // 2)
+        y = (progress_modal.winfo_screenheight() // 2) - (150 // 2)
+        progress_modal.geometry(f"400x150+{x}+{y}")
+
+        frame_progress = tk.Frame(progress_modal, bg=self.colors['bg_primary'], padx=20, pady=20)
+        frame_progress.pack(fill="both", expand=True)
+
+        lbl_progress = tk.Label(frame_progress,
+                              text=f"🔄 Generando {cantidad_cartones} cartones...\n\nPor favor espere...",
+                              font=("Segoe UI", 11),
+                              bg=self.colors['bg_primary'],
+                              fg=self.colors['text_primary'],
+                              justify='center')
+        lbl_progress.pack(pady=10)
+
+        progress_modal.update()
+
+        # Crear el bingo (esto generará automáticamente los cartones)
         nuevo_bingo = Bingo(nombre, cantidad_cartones, precio_carton)
         self.bingos.append(nuevo_bingo)
 
+        progress_modal.destroy()
+
         messagebox.showinfo("Éxito",
             f"✅ Bingo '{nombre}' creado exitosamente!\n\n"
-            f"🎫 Cartones: {cantidad_cartones}\n"
+            f"🎫 Cartones generados: {cantidad_cartones}\n"
             f"💰 Precio: ${precio_carton:,.2f}\n"
             f"💵 Ganancia potencial: ${cantidad_cartones * precio_carton:,.2f}")
 

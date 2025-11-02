@@ -399,13 +399,13 @@ class VistaAsignaciones:
         return asignaciones
 
     def ver_detalle_carton(self, numero):
-        """Ver detalle de un cartón específico con modal moderno"""
+        """Ver detalle de un cartón específico con modal moderno que incluye el cartón de bingo"""
         if not self.bingo_actual:
             return
 
         estado = self.bingo_actual.obtener_estado_carton(numero)
         if estado.get('vendido', False) or estado.get('apartado', False):
-            # Crear modal moderno
+            # Crear modal moderno más grande para incluir el cartón
             modal = tk.Toplevel(self.parent)
             
             es_apartado = estado.get('apartado', False)
@@ -414,68 +414,152 @@ class VistaAsignaciones:
             icono = "⏳" if es_apartado else "✅"
             
             modal.title(f"🎫 Detalle Cartón #{numero}")
-            modal.geometry("450x350")
+            modal.geometry("500x650")  # Aumentado para incluir el cartón
             modal.configure(bg=self.colors['bg_primary'])
             modal.transient(self.parent)
             modal.grab_set()
 
             # Centrar el modal
             modal.update_idletasks()
-            x = (modal.winfo_screenwidth() // 2) - (450 // 2)
-            y = (modal.winfo_screenheight() // 2) - (350 // 2)
-            modal.geometry(f"450x350+{x}+{y}")
+            x = (modal.winfo_screenwidth() // 2) - (500 // 2)
+            y = (modal.winfo_screenheight() // 2) - (650 // 2)
+            modal.geometry(f"500x650+{x}+{y}")
 
-            frame_modal = tk.Frame(modal, bg=self.colors['bg_primary'], padx=25, pady=25)
+            frame_modal = tk.Frame(modal, bg=self.colors['bg_primary'], padx=15, pady=15)
             frame_modal.pack(fill="both", expand=True)
 
-            # Icono
-            lbl_icono = tk.Label(frame_modal, text=icono, font=("Arial", 28),
-                               bg=self.colors['bg_primary'], fg=color_estado)
-            lbl_icono.pack(pady=10)
+            # Header con información del cartón
+            header_frame = tk.Frame(frame_modal, bg=self.colors['bg_secondary'], pady=8)
+            header_frame.pack(fill="x", pady=(0, 10))
 
-            # Información del cartón
-            lbl_titulo = tk.Label(frame_modal, text=f"CARTÓN #{numero}",
-                                font=("Segoe UI", 18, "bold"),
-                                bg=self.colors['bg_primary'], fg=color_estado)
-            lbl_titulo.pack(pady=5)
+            lbl_titulo = tk.Label(header_frame, 
+                                text=f"🎫 Cartón #{numero}",
+                                font=("Segoe UI", 16, "bold"),
+                                bg=self.colors['bg_secondary'],
+                                fg=self.colors['accent_primary'])
+            lbl_titulo.pack()
 
-            lbl_estado = tk.Label(frame_modal, text=f"{icono} {estado_texto}",
-                                font=("Segoe UI", 12, "bold"),
-                                bg=self.colors['bg_primary'], fg=color_estado)
-            lbl_estado.pack(pady=5)
+            # Mostrar estado
+            lbl_estado = tk.Label(header_frame,
+                                text=f"{icono} {estado_texto}",
+                                font=("Segoe UI", 12),
+                                bg=self.colors['bg_secondary'],
+                                fg=color_estado)
+            lbl_estado.pack(pady=3)
 
-            # Detalles
-            frame_detalles = tk.Frame(frame_modal, bg=self.colors['bg_primary'])
-            frame_detalles.pack(pady=20)
+            # Información de la persona
+            info_frame = tk.Frame(frame_modal, bg=self.colors['bg_primary'])
+            info_frame.pack(fill="x", pady=10)
+
+            # Formatear fecha de forma más legible
+            fecha_asignacion = estado.get('fecha_asignacion', '')
+            if fecha_asignacion:
+                try:
+                    # Intentar formatear la fecha si está en formato ISO
+                    fecha_obj = datetime.fromisoformat(fecha_asignacion.replace('Z', '+00:00'))
+                    fecha_formateada = fecha_obj.strftime('%d/%m/%Y %H:%M:%S')
+                except:
+                    fecha_formateada = fecha_asignacion
+            else:
+                fecha_formateada = 'No disponible'
 
             detalles = [
                 f"👤 {estado.get('nombre', '')}",
                 f"💰 ${self.bingo_actual.precio_carton:,.2f}" if not es_apartado else "⏳ Pendiente de pago",
-                f"📅 {estado.get('fecha_asignacion', 'No disponible')}"
+                f"📅 {fecha_formateada}"
             ]
 
             for detalle in detalles:
-                lbl_detalle = tk.Label(frame_detalles,
+                lbl_detalle = tk.Label(info_frame,
                     text=detalle,
-                    font=("Segoe UI", 12),
+                    font=("Segoe UI", 11),
                     bg=self.colors['bg_primary'],
                     fg=self.colors['text_primary'],
-                    pady=5
+                    pady=3
                 )
-                lbl_detalle.pack()
+                lbl_detalle.pack(anchor='w')
+
+            # Frame para la tabla del cartón
+            frame_tabla = tk.Frame(frame_modal, bg=self.colors['bg_primary'])
+            frame_tabla.pack(pady=15)
+
+            # Obtener y mostrar el cartón de bingo
+            carton_data = self.bingo_actual.obtener_carton(numero)
+            self.crear_tabla_carton_compacta(frame_tabla, carton_data)
+
+            # Frame para botones de acción
+            frame_botones = tk.Frame(frame_modal, bg=self.colors['bg_primary'])
+            frame_botones.pack(pady=15, fill='x')
 
             # Botón cerrar
-            btn_cerrar = tk.Button(frame_modal, text="👌 CERRAR",
-                                 command=modal.destroy,
-                                 bg=self.colors['accent_secondary'],
-                                 fg="white",
-                                 font=("Segoe UI", 12, "bold"),
-                                 padx=30,
-                                 pady=12,
-                                 relief='flat',
-                                 cursor="hand2",
-                                 bd=0)
-            btn_cerrar.pack(pady=20)
+            btn_cerrar = tk.Button(frame_botones,
+                                text="❌ CERRAR",
+                                command=modal.destroy,
+                                bg=self.colors['accent_danger'],
+                                fg='white',
+                                font=("Segoe UI", 11, "bold"),
+                                padx=20,
+                                pady=10,
+                                relief='flat',
+                                cursor='hand2')
+            btn_cerrar.pack()
+
+    def crear_tabla_carton_compacta(self, parent, carton_data):
+        """Crear la representación visual COMPACTA del cartón en formato de tabla"""
+        # Frame principal de la tabla - MÁS COMPACTO
+        frame_tabla_principal = tk.Frame(parent, bg='#2d2d4d', padx=8, pady=8)
+        frame_tabla_principal.pack(pady=10)
+        
+        # Título B I N G O con estilo mejorado - MÁS COMPACTO
+        frame_header = tk.Frame(frame_tabla_principal, bg='#2d2d4d')
+        frame_header.pack()
+        
+        letras = ['B', 'I', 'N', 'G', 'O']
+        colores_letras = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7']
+        
+        for i, (letra, color) in enumerate(zip(letras, colores_letras)):
+            celda = tk.Frame(frame_header, bg=color, width=60, height=30, relief='raised', bd=1)
+            celda.pack_propagate(False)
+            celda.grid(row=0, column=i, padx=1, pady=1)
+            
+            lbl = tk.Label(celda, 
+                          text=letra,
+                          font=("Segoe UI", 14, "bold"),
+                          bg=color,
+                          fg='#2d2d4d')
+            lbl.pack(expand=True, fill='both')
+        
+        # Crear filas de números con estilo mejorado - MÁS COMPACTO
+        for fila in range(5):
+            frame_fila = tk.Frame(frame_tabla_principal, bg='#2d2d4d')
+            frame_fila.pack()
+            
+            for col, (letra, color) in enumerate(zip(letras, colores_letras)):
+                clave = f'{letra}{fila+1}'
+                valor = carton_data.get(clave, '')
+                
+                # Casilla especial FREE
+                if clave == 'N3':
+                    bg_color = '#FFEAA7'
+                    fg_color = '#2d2d4d'
+                    texto = 'FREE'
+                    font_size = 10
+                else:
+                    bg_color = 'white'
+                    fg_color = '#2d2d4d'
+                    texto = str(valor)
+                    font_size = 12
+                
+                celda = tk.Frame(frame_fila, bg=color, width=60, height=45, relief='solid', bd=1)
+                celda.pack_propagate(False)
+                celda.grid(row=0, column=col, padx=1, pady=1)
+                
+                lbl = tk.Label(celda,
+                              text=texto,
+                              font=("Segoe UI", font_size, "bold"),
+                              bg=bg_color,
+                              fg=fg_color)
+                lbl.pack(expand=True, fill='both')
 
     def exportar_tablas_vendidas(self):
         """Exportar tablas vendidas a archivo TXT con asignaciones centradas"""

@@ -7,10 +7,10 @@ from pathlib import Path
 
 class RoundedButton(tk.Canvas):
     """Botón con bordes redondeados reales usando Canvas"""
-    def __init__(self, parent, text, command, width=100, height=80, 
-                 bg_color='#3498db', hover_color='#2980b9', 
+    def __init__(self, parent, text, command, width=100, height=80,
+                 bg_color='#3498db', hover_color='#2980b9',
                  text_color='white', corner_radius=15, **kwargs):
-        super().__init__(parent, width=width, height=height, 
+        super().__init__(parent, width=width, height=height,
                         highlightthickness=0, bg=parent.cget('bg'))
         self.command = command
         self.bg_color = bg_color
@@ -19,32 +19,32 @@ class RoundedButton(tk.Canvas):
         self.corner_radius = corner_radius
         self.width = width
         self.height = height
-        
+
         self.bind("<Button-1>", self.on_click)
         self.bind("<Enter>", self.on_enter)
         self.bind("<Leave>", self.on_leave)
-        
+
         self.draw_button(text)
-        
+
     def draw_button(self, text):
         self.delete("all")
-        
+
         # Dibujar rectángulo con bordes redondeados
-        self.create_rounded_rectangle(0, 0, self.width, self.height, 
-                                    radius=self.corner_radius, 
+        self.create_rounded_rectangle(0, 0, self.width, self.height,
+                                    radius=self.corner_radius,
                                     fill=self.bg_color, outline="")
-        
+
         # Dividir texto en líneas
         lines = text.split('\n')
         total_lines = len(lines)
-        
+
         for i, line in enumerate(lines):
             y_offset = (self.height / (total_lines + 1)) * (i + 1)
-            self.create_text(self.width/2, y_offset, 
+            self.create_text(self.width/2, y_offset,
                            text=line, fill=self.text_color,
                            font=('Segoe UI', 9, 'bold'),
                            justify='center')
-    
+
     def create_rounded_rectangle(self, x1, y1, x2, y2, radius=25, **kwargs):
         points = [x1+radius, y1,
                  x2-radius, y1,
@@ -59,17 +59,17 @@ class RoundedButton(tk.Canvas):
                  x1, y1+radius,
                  x1, y1]
         return self.create_polygon(points, smooth=True, **kwargs)
-    
+
     def on_click(self, event):
         self.command()
-        
+
     def on_enter(self, event):
         self.draw_button(self.get_text())
         self.config(cursor="hand2")
-        
+
     def on_leave(self, event):
         self.draw_button(self.get_text())
-        
+
     def get_text(self):
         # Obtener texto actual del botón
         items = self.find_all()
@@ -82,10 +82,10 @@ class VistaTablas:
         self.controlador = controlador
         self.bingo_actual = None
         self.busqueda_actual = ""
-        
+
         self.colors = {
             'bg_primary': '#0f0f23',
-            'bg_secondary': '#1a1a2e', 
+            'bg_secondary': '#1a1a2e',
             'bg_card': '#16213e',
             'accent_primary': '#00ff88',
             'accent_secondary': '#0099ff',
@@ -96,7 +96,7 @@ class VistaTablas:
             'text_secondary': '#b0b0b0',
             'border': '#00ff88'
         }
-        
+
         self.frame = tk.Frame(parent, bg=self.colors['bg_primary'])
         self.crear_interfaz()
 
@@ -109,26 +109,26 @@ class VistaTablas:
 
         # Botón volver
         btn_volver = tk.Button(header_frame,
-            text="‹ VOLVER A BINGOS",
-            command=self.volver_gestor,
-            font=('Segoe UI', 11, 'bold'),
-            bg='#2d2d4d',
-            fg=self.colors['text_secondary'],
-            padx=20,
-            pady=10,
-            relief='flat',
-            cursor='hand2',
-            bd=0
-        )
+                             text="‹ VOLVER A BINGOS",
+                             command=self.volver_gestor,
+                             font=('Segoe UI', 11, 'bold'),
+                             bg='#2d2d4d',
+                             fg=self.colors['text_secondary'],
+                             padx=20,
+                             pady=10,
+                             relief='flat',
+                             cursor='hand2',
+                             bd=0
+                             )
         btn_volver.pack(side='left', padx=10, pady=10)
 
         # Información del bingo
         self.lbl_info_bingo = tk.Label(header_frame,
-            text="Bingo: [Cargando...]",
-            font=('Segoe UI', 14, 'bold'),
-            bg=self.colors['bg_secondary'],
-            fg=self.colors['accent_primary']
-        )
+                                     text="Bingo: [Cargando...]",
+                                     font=('Segoe UI', 14, 'bold'),
+                                     bg=self.colors['bg_secondary'],
+                                     fg=self.colors['accent_primary']
+                                     )
         self.lbl_info_bingo.pack(side='left', padx=20, pady=10)
 
         # Búsqueda moderna
@@ -140,100 +140,115 @@ class VistaTablas:
         search_container.pack()
 
         lbl_search_icon = tk.Label(search_container,
-            text="🔍",
-            font=('Segoe UI', 14),
-            bg='#2d2d4d',
-            fg=self.colors['text_secondary'],
-            padx=12,
-            pady=8
-        )
+                                 text="🔍",
+                                 font=('Segoe UI', 14),
+                                 bg='#2d2d4d',
+                                 fg=self.colors['text_secondary'],
+                                 padx=12,
+                                 pady=8
+                                 )
         lbl_search_icon.pack(side='left')
 
         self.entry_busqueda = tk.Entry(search_container,
-            font=('Segoe UI', 11),
-            bg='#2d2d4d',
-            fg='white',
-            insertbackground='white',
-            relief='flat',
-            width=25,
-            bd=0
-        )
+                                     font=('Segoe UI', 11),
+                                     bg='#2d2d4d',
+                                     fg='white',
+                                     insertbackground='white',
+                                     relief='flat',
+                                     width=25,
+                                     bd=0
+                                     )
         self.entry_busqueda.pack(side='left', padx=5, pady=8)
         self.entry_busqueda.bind('<KeyRelease>', self.filtrar_tablas)
 
         # Botón limpiar búsqueda
         btn_limpiar = tk.Button(search_container,
-            text="✕",
-            command=self.limpiar_busqueda,
-            font=('Segoe UI', 12, 'bold'),
-            bg='#666666',
-            fg='white',
-            width=3,
-            relief='flat',
-            cursor='hand2',
-            bd=0
-        )
+                              text="✕",
+                              command=self.limpiar_busqueda,
+                              font=('Segoe UI', 12, 'bold'),
+                              bg='#666666',
+                              fg='white',
+                              width=3,
+                              relief='flat',
+                              cursor='hand2',
+                              bd=0
+                              )
         btn_limpiar.pack(side='left', padx=5, pady=2)
 
         # Barra de herramientas
         toolbar_frame = tk.Frame(self.frame, bg=self.colors['bg_primary'])
         toolbar_frame.pack(fill='x', padx=20, pady=10)
 
-        btn_exportar = tk.Button(toolbar_frame,
-            text="📄 GENERAR REPORTE PDF",
-            command=self.exportar_pdf,
-            font=('Segoe UI', 11, 'bold'),
-            bg=self.colors['accent_secondary'],
-            fg='white',
-            padx=20,
-            pady=10,
-            relief='flat',
-            cursor='hand2',
-            bd=0
-        )
-        btn_exportar.pack(side='left', padx=5)
+        btn_exportar_pdf = tk.Button(toolbar_frame,
+                                   text="📄 EXPORTAR PDF",
+                                   command=self.exportar_pdf,
+                                   font=('Segoe UI', 11, 'bold'),
+                                   bg=self.colors['accent_secondary'],
+                                   fg='white',
+                                   padx=20,
+                                   pady=10,
+                                   relief='flat',
+                                   cursor='hand2',
+                                   bd=0
+                                   )
+        btn_exportar_pdf.pack(side='left', padx=5)
 
         # Nuevos botones de exportar/importar datos
         btn_exportar_datos = tk.Button(toolbar_frame,
-            text="💾 EXPORTAR DATOS",
-            command=self.exportar_datos,
-            font=('Segoe UI', 11, 'bold'),
-            bg='#9b59b6',
-            fg='white',
-            padx=20,
-            pady=10,
-            relief='flat',
-            cursor='hand2',
-            bd=0
-        )
+                                     text="💾 EXPORTAR DATOS",
+                                     command=self.exportar_datos,
+                                     font=('Segoe UI', 11, 'bold'),
+                                     bg='#9b59b6',
+                                     fg='white',
+                                     padx=20,
+                                     pady=10,
+                                     relief='flat',
+                                     cursor='hand2',
+                                     bd=0
+                                     )
         btn_exportar_datos.pack(side='left', padx=5)
 
         btn_importar_datos = tk.Button(toolbar_frame,
-            text="📥 IMPORTAR DATOS",
-            command=self.importar_datos,
-            font=('Segoe UI', 11, 'bold'),
-            bg='#3498db',
-            fg='white',
-            padx=20,
-            pady=10,
-            relief='flat',
-            cursor='hand2',
-            bd=0
-        )
+                                     text="📥 IMPORTAR DATOS",
+                                     command=self.importar_datos,
+                                     font=('Segoe UI', 11, 'bold'),
+                                     bg='#3498db',
+                                     fg='white',
+                                     padx=20,
+                                     pady=10,
+                                     relief='flat',
+                                     cursor='hand2',
+                                     bd=0
+                                     )
         btn_importar_datos.pack(side='left', padx=5)
 
+        # Nuevo botón para exportar tablas
+        btn_exportar_tablas = tk.Button(toolbar_frame,
+                                      text="📊 EXPORTAR TABLAS",
+                                      command=self.exportar_tablas,
+                                      font=('Segoe UI', 11, 'bold'),
+                                      bg='#e67e22',
+                                      fg='white',
+                                      padx=20,
+                                      pady=10,
+                                      relief='flat',
+                                      cursor='hand2',
+                                      bd=0
+                                      )
+        btn_exportar_tablas.pack(side='left', padx=5)
+
         btn_reset = tk.Button(toolbar_frame,
-            text="🔄 RESETEAR BINGO",
-            command=self.resetear_bingo,
-            font=('Segoe UI', 11, 'bold'),
-            bg=self.colors['accent_danger'],
-            fg='white',
-            padx=20,
-            pady=10,
-            relief='flat',
-            cursor='hand2',
-            bd=0
-        )
+                            text="🔄 RESETEAR BINGO",
+                            command=self.resetear_bingo,
+                            font=('Segoe UI', 11, 'bold'),
+                            bg=self.colors['accent_danger'],
+                            fg='white',
+                            padx=20,
+                            pady=10,
+                            relief='flat',
+                            cursor='hand2',
+                            bd=0
+                            )
         btn_reset.pack(side='left', padx=5)
 
         # Frame principal para tablas
@@ -295,11 +310,11 @@ class VistaTablas:
 
         if not cartones_filtrados:
             lbl_sin_resultados = tk.Label(self.frame_numeros,
-                text="🔍 No se encontraron cartones que coincidan con la búsqueda",
-                font=('Segoe UI', 14),
-                bg=self.colors['bg_primary'],
-                fg=self.colors['text_secondary']
-            )
+                                        text="🔍 No se encontraron cartones que coincidan con la búsqueda",
+                                        font=('Segoe UI', 14),
+                                        bg=self.colors['bg_primary'],
+                                        fg=self.colors['text_secondary']
+                                        )
             lbl_sin_resultados.pack(pady=50)
             return
 
@@ -315,10 +330,10 @@ class VistaTablas:
 
         # Calcular dimensiones dinámicas
         canvas_width = max(1200, self.canvas.winfo_width())
-        padding_total = 20  # 10px a cada lado
+        padding_total = 20 # 10px a cada lado
         ancho_disponible = canvas_width - padding_total
-        ancho_boton = (ancho_disponible // COLUMNAS) - 2  # -2 para margen entre botones
-        alto_boton = 90  # Altura fija adecuada
+        ancho_boton = (ancho_disponible // COLUMNAS) - 2 # -2 para margen entre botones
+        alto_boton = 90 # Altura fija adecuada
 
         # Crear botones en grid
         for idx, numero in enumerate(cartones_filtrados):
@@ -337,18 +352,18 @@ class VistaTablas:
                 color_hover = "#219a52"
             elif apartado:
                 texto = f"#{numero}\n⏳ {nombre.split()[0] if nombre else 'Apartado'}"
-                color_bg = "#f39c12"  # Color naranja para apartados
+                color_bg = "#f39c12" # Color naranja para apartados
                 color_hover = "#e67e22"
             else:
                 texto = f"#{numero}\n🟢 Disponible"
                 color_bg = "#3498db"
                 color_hover = "#2980b9"
 
-            # Crear botón redondeado
+            # Crear botón redondeado - CAMBIO IMPORTANTE: usar abrir_modal_carton
             btn = RoundedButton(
                 self.frame_numeros,
                 text=texto,
-                command=lambda n=numero: self.abrir_modal(n),
+                command=lambda n=numero: self.abrir_modal_carton(n),
                 width=ancho_boton,
                 height=alto_boton,
                 bg_color=color_bg,
@@ -407,121 +422,239 @@ class VistaTablas:
                 texto = f"Bingo: {self.bingo_actual.nombre} | Error cargando información"
                 self.lbl_info_bingo.config(text=texto)
 
-    def abrir_modal(self, numero):
-        """Abrir modal para asignar/ver cartón"""
-        estado_actual = self.bingo_actual.obtener_estado_carton(numero)
-
-        # Si ya está vendido o apartado, mostrar información con opciones
-        if estado_actual.get('vendido', False) or estado_actual.get('apartado', False):
-            modal = tk.Toplevel(self.parent)
-            
-            estado_texto = "VENDIDO" if estado_actual.get('vendido', False) else "APARTADO"
-            color_estado = "#27ae60" if estado_actual.get('vendido', False) else "#f39c12"
-            
-            modal.title(f"🎫 Información del Cartón #{numero}")
-            modal.geometry("550x450")
-            modal.configure(bg=self.colors['bg_primary'])
-            modal.transient(self.parent)
-            modal.grab_set()
-
-            # Centrar el modal
-            modal.update_idletasks()
-            x = (modal.winfo_screenwidth() // 2) - (550 // 2)
-            y = (modal.winfo_screenheight() // 2) - (450 // 2)
-            modal.geometry(f"550x450+{x}+{y}")
-
-            frame_modal = tk.Frame(modal, bg=self.colors['bg_primary'], padx=25, pady=25)
-            frame_modal.pack(fill="both", expand=True)
-
-            # Icono según estado
-            icono = "✅" if estado_actual.get('vendido', False) else "⏳"
-            lbl_icono = tk.Label(frame_modal, text=icono, font=("Arial", 24), 
-                               bg=self.colors['bg_primary'], fg=color_estado)
-            lbl_icono.pack(pady=10)
-
-            # Información del cartón
-            lbl_titulo = tk.Label(frame_modal, text=f"CARTÓN #{numero} - {estado_texto}",
-                                font=("Segoe UI", 16, "bold"), 
-                                bg=self.colors['bg_primary'], fg=color_estado)
-            lbl_titulo.pack(pady=5)
-
-            lbl_nombre = tk.Label(frame_modal, 
-                                text=f"👤 Asignado a: {estado_actual.get('nombre', '')}",
-                                font=("Segoe UI", 14), 
-                                bg=self.colors['bg_primary'], fg='#ffffff')
-            lbl_nombre.pack(pady=10)
-
-            lbl_fecha = tk.Label(frame_modal, 
-                               text=f"📅 Fecha: {estado_actual.get('fecha_asignacion', 'No disponible')}",
-                               font=("Segoe UI", 12), 
-                               bg=self.colors['bg_primary'], fg='#cccccc')
-            lbl_fecha.pack(pady=5)
-
-            # Frame para botones
-            frame_botones = tk.Frame(frame_modal, bg=self.colors['bg_primary'])
-            frame_botones.pack(pady=30)
-
-            def cancelar_asignacion():
-                if self.bingo_actual.liberar_carton(numero):
-                    modal.destroy()
-                    self.crear_botones_numeros()
-                    self.actualizar_info_bingo()
-                    messagebox.showinfo("Éxito", f"✅ Cartón #{numero} liberado correctamente")
-                else:
-                    messagebox.showerror("Error", "No se pudo liberar el cartón")
-
-            def cambiar_estado():
-                if estado_actual.get('vendido', False):
-                    # Cambiar de vendido a apartado
-                    if self.bingo_actual.apartar_carton(numero, estado_actual.get('nombre', '')):
-                        modal.destroy()
-                        self.crear_botones_numeros()
-                        self.actualizar_info_bingo()
-                        messagebox.showinfo("Éxito", f"✅ Cartón #{numero} cambiado a APARTADO")
-                else:
-                    # Cambiar de apartado a vendido
-                    if self.bingo_actual.vender_carton(numero, estado_actual.get('nombre', '')):
-                        modal.destroy()
-                        self.crear_botones_numeros()
-                        self.actualizar_info_bingo()
-                        messagebox.showinfo("Éxito", f"✅ Cartón #{numero} cambiado a VENDIDO")
-
-            # Botón para cambiar estado
-            if estado_actual.get('vendido', False):
-                btn_cambiar = tk.Button(frame_botones, text="⏳ MARCAR COMO APARTADO",
-                                      command=cambiar_estado,
-                                      bg="#f39c12", fg="white", font=("Segoe UI", 12, "bold"),
-                                      width=20, height=2, padx=25, pady=20,
-                                      relief='flat', cursor="hand2")
-                btn_cambiar.pack(side="left", padx=10)
-            else:
-                btn_cambiar = tk.Button(frame_botones, text="✅ MARCAR COMO VENDIDO",
-                                      command=cambiar_estado,
-                                      bg="#27ae60", fg="white", font=("Segoe UI", 12, "bold"),
-                                      width=20, height=2, padx=25, pady=20,
-                                      relief='flat', cursor="hand2")
-                btn_cambiar.pack(side="left", padx=10)
-
-            btn_cancelar = tk.Button(frame_botones, text="❌ LIBERAR CARTÓN",
-                                   command=cancelar_asignacion,
-                                   bg="#e74c3c", fg="white", font=("Segoe UI", 12, "bold"),
-                                   width=18, height=2, padx=25, pady=20,
-                                   relief='flat', cursor="hand2")
-            btn_cancelar.pack(side="left", padx=10)
-
-            btn_cerrar = tk.Button(frame_botones, text="👌 CERRAR",
-                                 command=modal.destroy,
-                                 bg="#95a5a6", fg="white", font=("Segoe UI", 12, "bold"),
-                                 width=14, height=2, padx=25, pady=20,
-                                 relief='flat', cursor="hand2")
-            btn_cerrar.pack(side="left", padx=10)
-
+    def abrir_modal_carton(self, numero):
+        """Abrir modal para mostrar el cartón con formato de tabla"""
+        if not self.bingo_actual:
             return
-
-        # Modal para nueva asignación (disponible)
+        
+        # Obtener los datos del cartón
+        carton_data = self.bingo_actual.obtener_carton(numero)
+        estado_actual = self.bingo_actual.obtener_estado_carton(numero)
+        
+        # Crear modal - REDUCIDO EN ALTURA
         modal = tk.Toplevel(self.parent)
-        modal.title(f"🎫 Asignar Cartón #{numero}")
-        modal.geometry("500x350")
+        modal.title(f"🎫 Cartón #{numero}")
+        modal.geometry("500x550")  # REDUCIDO DE 650 a 550
+        modal.configure(bg=self.colors['bg_primary'])
+        modal.transient(self.parent)
+        modal.grab_set()
+        
+        # Centrar el modal
+        modal.update_idletasks()
+        x = (modal.winfo_screenwidth() // 2) - (500 // 2)
+        y = (modal.winfo_screenheight() // 2) - (550 // 2)
+        modal.geometry(f"500x550+{x}+{y}")
+        
+        frame_modal = tk.Frame(modal, bg=self.colors['bg_primary'], padx=15, pady=15)  # REDUCIDO PADDING
+        frame_modal.pack(fill="both", expand=True)
+        
+        # Header con información del cartón - REDUCIDO ESPACIADO
+        header_frame = tk.Frame(frame_modal, bg=self.colors['bg_secondary'], pady=8)  # REDUCIDO PADDING
+        header_frame.pack(fill="x", pady=(0, 10))  # REDUCIDO MARGEN
+        
+        lbl_titulo = tk.Label(header_frame, 
+                             text=f"🎫 Cartón #{numero}",
+                             font=("Segoe UI", 16, "bold"),
+                             bg=self.colors['bg_secondary'],
+                             fg=self.colors['accent_primary'])
+        lbl_titulo.pack()
+        
+        # Mostrar estado
+        estado_texto = ""
+        estado_color = ""
+        if estado_actual.get('vendido', False):
+            estado_texto = f"✅ VENDIDO a: {estado_actual.get('nombre', '')}"
+            estado_color = "#27ae60"
+        elif estado_actual.get('apartado', False):
+            estado_texto = f"⏳ APARTADO por: {estado_actual.get('nombre', '')}"
+            estado_color = "#f39c12"
+        else:
+            estado_texto = "🟢 DISPONIBLE"
+            estado_color = "#3498db"
+        
+        lbl_estado = tk.Label(header_frame,
+                             text=estado_texto,
+                             font=("Segoe UI", 12),
+                             bg=self.colors['bg_secondary'],
+                             fg=estado_color)
+        lbl_estado.pack(pady=3)  # REDUCIDO PADDING
+        
+        # Frame para la tabla del cartón - REDUCIDO ESPACIADO
+        frame_tabla = tk.Frame(frame_modal, bg=self.colors['bg_primary'])
+        frame_tabla.pack(pady=10)  # REDUCIDO MARGEN
+        
+        # Crear la tabla del cartón
+        self.crear_tabla_carton_compacta(frame_tabla, carton_data)
+        
+        # Frame para botones de acción - BOTONES UNO AL LADO DEL OTRO
+        frame_botones = tk.Frame(frame_modal, bg=self.colors['bg_primary'])
+        frame_botones.pack(pady=15, fill='x')  # AUMENTADO MARGEN PARA BOTONES GRANDES
+        
+        # Lógica de botones según el estado actual - UNO AL LADO DEL OTRO
+        if estado_actual.get('vendido', False):
+            # Cartón VENDIDO - Solo puede liberarse
+            btn_liberar = tk.Button(frame_botones,
+                                  text="🔄 LIBERAR CARTÓN",
+                                  command=lambda: self.liberar_carton(numero, modal),
+                                  bg=self.colors['accent_warning'],
+                                  fg='white',
+                                  font=("Segoe UI", 12, "bold"),  # TEXTO MÁS GRANDE
+                                  padx=25,  # MÁS PADDING
+                                  pady=15,  # MÁS PADDING
+                                  relief='flat',
+                                  cursor='hand2')
+            btn_liberar.pack(side='left', padx=10, pady=5, fill='x', expand=True)  # UNO AL LADO DEL OTRO
+            
+        elif estado_actual.get('apartado', False):
+            # Cartón APARTADO - Puede venderse o liberarse
+            btn_vender = tk.Button(frame_botones,
+                                 text="✅ VENDIDO",
+                                 command=lambda: self.cambiar_a_vendido(numero, estado_actual.get('nombre', ''), modal),
+                                 bg=self.colors['accent_success'],
+                                 fg='white',
+                                 font=("Segoe UI", 12, "bold"),  # TEXTO MÁS GRANDE
+                                 padx=25,  # MÁS PADDING
+                                 pady=15,  # MÁS PADDING
+                                 relief='flat',
+                                 cursor='hand2')
+            btn_vender.pack(side='left', padx=10, pady=5, fill='x', expand=True)  # UNO AL LADO DEL OTRO
+            
+            btn_liberar = tk.Button(frame_botones,
+                                  text="🔄 LIBERAR CARTÓN",
+                                  command=lambda: self.liberar_carton(numero, modal),
+                                  bg=self.colors['accent_warning'],
+                                  fg='white',
+                                  font=("Segoe UI", 12, "bold"),  # TEXTO MÁS GRANDE
+                                  padx=25,  # MÁS PADDING
+                                  pady=15,  # MÁS PADDING
+                                  relief='flat',
+                                  cursor='hand2')
+            btn_liberar.pack(side='left', padx=10, pady=5, fill='x', expand=True)  # UNO AL LADO DEL OTRO
+            
+        else:
+            # Cartón DISPONIBLE - Puede apartarse o venderse
+            btn_apartar = tk.Button(frame_botones,
+                                  text="⏳ APARTAR CARTÓN",
+                                  command=lambda: self.abrir_modal_asignacion(numero, "apartado", modal),
+                                  bg=self.colors['accent_warning'],
+                                  fg='white',
+                                  font=("Segoe UI", 12, "bold"),  # TEXTO MÁS GRANDE
+                                  padx=25,  # MÁS PADDING
+                                  pady=15,  # MÁS PADDING
+                                  relief='flat',
+                                  cursor='hand2')
+            btn_apartar.pack(side='left', padx=10, pady=5, fill='x', expand=True)  # UNO AL LADO DEL OTRO
+            
+            btn_vender = tk.Button(frame_botones,
+                                 text="✅ VENDER CARTÓN",
+                                 command=lambda: self.abrir_modal_asignacion(numero, "vendido", modal),
+                                 bg=self.colors['accent_success'],
+                                 fg='white',
+                                 font=("Segoe UI", 12, "bold"),  # TEXTO MÁS GRANDE
+                                 padx=25,  # MÁS PADDING
+                                 pady=15,  # MÁS PADDING
+                                 relief='flat',
+                                 cursor='hand2')
+            btn_vender.pack(side='left', padx=10, pady=5, fill='x', expand=True)  # UNO AL LADO DEL OTRO
+        
+        # Botón cerrar - SIEMPRE A LA DERECHA
+        btn_cerrar = tk.Button(frame_botones,
+                              text="❌ CERRAR",
+                              command=modal.destroy,
+                              bg=self.colors['accent_danger'],
+                              fg='white',
+                              font=("Segoe UI", 12, "bold"),  # TEXTO MÁS GRANDE
+                              padx=25,  # MÁS PADDING
+                              pady=15,  # MÁS PADDING
+                              relief='flat',
+                              cursor='hand2')
+        btn_cerrar.pack(side='right', padx=10, pady=5)  # SIEMPRE A LA DERECHA
+
+    def crear_tabla_carton_compacta(self, parent, carton_data):
+        """Crear la representación visual COMPACTA del cartón en formato de tabla"""
+        # Frame principal de la tabla - MÁS COMPACTO
+        frame_tabla_principal = tk.Frame(parent, bg='#2d2d4d', padx=8, pady=8)  # REDUCIDO PADDING
+        frame_tabla_principal.pack(pady=5)  # REDUCIDO MARGEN
+        
+        # Título B I N G O con estilo mejorado - MÁS COMPACTO
+        frame_header = tk.Frame(frame_tabla_principal, bg='#2d2d4d')
+        frame_header.pack()
+        
+        letras = ['B', 'I', 'N', 'G', 'O']
+        colores_letras = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7']
+        
+        for i, (letra, color) in enumerate(zip(letras, colores_letras)):
+            celda = tk.Frame(frame_header, bg=color, width=60, height=30, relief='raised', bd=1)  # REDUCIDO TAMAÑO
+            celda.pack_propagate(False)
+            celda.grid(row=0, column=i, padx=1, pady=1)  # REDUCIDO PADDING
+            
+            lbl = tk.Label(celda, 
+                          text=letra,
+                          font=("Segoe UI", 14, "bold"),  # TEXTO MÁS PEQUEÑO
+                          bg=color,
+                          fg='#2d2d4d')
+            lbl.pack(expand=True, fill='both')
+        
+        # Crear filas de números con estilo mejorado - MÁS COMPACTO
+        for fila in range(5):
+            frame_fila = tk.Frame(frame_tabla_principal, bg='#2d2d4d')
+            frame_fila.pack()
+            
+            for col, (letra, color) in enumerate(zip(letras, colores_letras)):
+                clave = f'{letra}{fila+1}'
+                valor = carton_data.get(clave, '')
+                
+                # Casilla especial FREE
+                if clave == 'N3':
+                    bg_color = '#FFEAA7'
+                    fg_color = '#2d2d4d'
+                    texto = 'FREE'
+                    font_size = 10  # TEXTO MÁS PEQUEÑO
+                else:
+                    bg_color = 'white'
+                    fg_color = '#2d2d4d'
+                    texto = str(valor)
+                    font_size = 12  # TEXTO MÁS PEQUEÑO
+                
+                celda = tk.Frame(frame_fila, bg=color, width=60, height=45, relief='solid', bd=1)  # REDUCIDO TAMAÑO
+                celda.pack_propagate(False)
+                celda.grid(row=0, column=col, padx=1, pady=1)  # REDUCIDO PADDING
+                
+                lbl = tk.Label(celda,
+                              text=texto,
+                              font=("Segoe UI", font_size, "bold"),
+                              bg=bg_color,
+                              fg=fg_color)
+                lbl.pack(expand=True, fill='both')
+
+    def liberar_carton(self, numero, modal):
+        """Liberar un cartón (volver a disponible)"""
+        if self.bingo_actual.liberar_carton(numero):
+            modal.destroy()
+            self.crear_botones_numeros()
+            self.actualizar_info_bingo()
+            messagebox.showinfo("Éxito", f"✅ Cartón #{numero} liberado correctamente")
+        else:
+            messagebox.showerror("Error", "No se pudo liberar el cartón")
+
+    def cambiar_a_vendido(self, numero, nombre, modal):
+        """Cambiar un cartón de apartado a vendido"""
+        if self.bingo_actual.vender_carton(numero, nombre):
+            modal.destroy()
+            self.crear_botones_numeros()
+            self.actualizar_info_bingo()
+            messagebox.showinfo("Éxito", f"✅ Cartón #{numero} marcado como VENDIDO")
+        else:
+            messagebox.showerror("Error", "No se pudo cambiar el estado del cartón")
+
+    def abrir_modal_asignacion(self, numero, tipo, modal_actual=None):
+        """Abrir modal para asignar cartón (apartar o vender)"""
+        if modal_actual:
+            modal_actual.destroy()
+            
+        modal = tk.Toplevel(self.parent)
+        modal.title(f"🎫 {'Vender' if tipo == 'vendido' else 'Apartar'} Cartón #{numero}")
+        modal.geometry("500x300")  # MODAL MÁS COMPACTO
         modal.configure(bg=self.colors['bg_primary'])
         modal.transient(self.parent)
         modal.grab_set()
@@ -529,62 +662,34 @@ class VistaTablas:
         # Centrar el modal
         modal.update_idletasks()
         x = (modal.winfo_screenwidth() // 2) - (500 // 2)
-        y = (modal.winfo_screenheight() // 2) - (350 // 2)
-        modal.geometry(f"500x350+{x}+{y}")
+        y = (modal.winfo_screenheight() // 2) - (300 // 2)
+        modal.geometry(f"500x300+{x}+{y}")
 
-        frame_modal = tk.Frame(modal, bg=self.colors['bg_primary'], padx=25, pady=25)
+        frame_modal = tk.Frame(modal, bg=self.colors['bg_primary'], padx=20, pady=20)
         frame_modal.pack(fill="both", expand=True)
 
         # Título
-        lbl_titulo = tk.Label(frame_modal, text=f"🎫 ASIGNAR CARTÓN #{numero}",
-                            font=("Segoe UI", 16, "bold"), 
+        titulo_texto = f"🎫 {'VENDER' if tipo == 'vendido' else 'APARTAR'} CARTÓN #{numero}"
+        lbl_titulo = tk.Label(frame_modal, text=titulo_texto,
+                            font=("Segoe UI", 16, "bold"),
                             bg=self.colors['bg_primary'], fg='#ffffff')
-        lbl_titulo.pack(pady=15)
+        lbl_titulo.pack(pady=10)  # REDUCIDO PADDING
 
         # Campo para nombre
         lbl_nombre = tk.Label(frame_modal, text="👤 Nombre completo de la persona:",
-                            font=("Segoe UI", 11), 
+                            font=("Segoe UI", 11),
                             bg=self.colors['bg_primary'], fg='#cccccc')
-        lbl_nombre.pack(pady=8)
+        lbl_nombre.pack(pady=5)  # REDUCIDO PADDING
 
         entry_nombre = tk.Entry(frame_modal, width=40, font=("Segoe UI", 12),
                               bg='#3d3d3d', fg='white', insertbackground='white',
                               relief='flat')
-        entry_nombre.pack(pady=15, ipady=10)
+        entry_nombre.pack(pady=10, ipady=8)  # REDUCIDO PADDING
         entry_nombre.focus()
 
-        # Frame para botones de estado
-        frame_estado = tk.Frame(frame_modal, bg=self.colors['bg_primary'])
-        frame_estado.pack(pady=15)
-
-        lbl_estado = tk.Label(frame_estado, text="Seleccionar estado:",
-                            font=("Segoe UI", 11, "bold"), 
-                            bg=self.colors['bg_primary'], fg='#cccccc')
-        lbl_estado.pack(pady=5)
-
-        frame_botones_estado = tk.Frame(frame_estado, bg=self.colors['bg_primary'])
-        frame_botones_estado.pack(pady=10)
-
-        # Variable para el estado seleccionado
-        self.estado_seleccionado = tk.StringVar(value="vendido")
-
-        btn_vendido = tk.Radiobutton(frame_botones_estado, text="✅ VENDIDO", 
-                                   variable=self.estado_seleccionado, value="vendido",
-                                   font=("Segoe UI", 10, "bold"), 
-                                   bg=self.colors['bg_primary'], fg='#27ae60',
-                                   selectcolor='#1a1a2e', activebackground=self.colors['bg_primary'])
-        btn_vendido.pack(side="left", padx=10)
-
-        btn_apartado = tk.Radiobutton(frame_botones_estado, text="⏳ APARTADO", 
-                                    variable=self.estado_seleccionado, value="apartado",
-                                    font=("Segoe UI", 10, "bold"), 
-                                    bg=self.colors['bg_primary'], fg='#f39c12',
-                                    selectcolor='#1a1a2e', activebackground=self.colors['bg_primary'])
-        btn_apartado.pack(side="left", padx=10)
-
-        # Frame para botones de acción
+        # Frame para botones de acción - BOTONES UNO AL LADO DEL OTRO
         frame_botones = tk.Frame(frame_modal, bg=self.colors['bg_primary'])
-        frame_botones.pack(pady=25)
+        frame_botones.pack(pady=20, fill='x')
 
         def asignar_carton():
             nombre = entry_nombre.get().strip()
@@ -592,37 +697,39 @@ class VistaTablas:
                 messagebox.showerror("Error", "❌ Por favor ingrese un nombre")
                 return
 
-            estado = self.estado_seleccionado.get()
-            
-            if estado == "vendido":
+            if tipo == "vendido":
                 self.bingo_actual.asignar_carton(numero, nombre)
             else:
                 self.bingo_actual.apartar_carton(numero, nombre)
-                
+
             modal.destroy()
             self.crear_botones_numeros()
             self.actualizar_info_bingo()
 
-            estado_texto = "VENDIDO" if estado == "vendido" else "APARTADO"
+            estado_texto = "VENDIDO" if tipo == "vendido" else "APARTADO"
             messagebox.showinfo("Éxito", f"✅ Cartón #{numero} {estado_texto.lower()} a:\n{nombre}")
 
         def cancelar():
             modal.destroy()
 
-        # Botones con mucho más padding (como estaban antes)
-        btn_asignar = tk.Button(frame_botones, text="✅ ASIGNAR",
+        # Botones UNO AL LADO DEL OTRO
+        btn_texto = "✅ VENDER" if tipo == "vendido" else "⏳ APARTAR"
+        btn_asignar = tk.Button(frame_botones, text=btn_texto,
                               command=asignar_carton,
-                              bg="#27ae60", fg="white", font=("Segoe UI", 12, "bold"),
-                              width=14, height=2, padx=25, pady=20,
+                              bg="#27ae60" if tipo == "vendido" else "#f39c12",
+                              fg="white", font=("Segoe UI", 12, "bold"),
+                              padx=25,  # MÁS PADDING
+                              pady=15,  # MÁS PADDING
                               relief='flat', cursor="hand2")
-        btn_asignar.pack(side="left", padx=15)
+        btn_asignar.pack(side='left', padx=10, pady=5, fill='x', expand=True)  # UNO AL LADO DEL OTRO
 
         btn_cancelar = tk.Button(frame_botones, text="❌ CANCELAR",
                                command=cancelar,
                                bg="#95a5a6", fg="white", font=("Segoe UI", 12, "bold"),
-                               width=14, height=2, padx=25, pady=20,
+                               padx=25,  # MÁS PADDING
+                               pady=15,  # MÁS PADDING
                                relief='flat', cursor="hand2")
-        btn_cancelar.pack(side="left", padx=15)
+        btn_cancelar.pack(side='right', padx=10, pady=5)  # A LA DERECHA
 
         # Enter para asignar, Escape para cancelar
         modal.bind('<Return>', lambda e: asignar_carton())
@@ -630,6 +737,25 @@ class VistaTablas:
 
         modal.focus_force()
         entry_nombre.focus()
+
+    # ... (el resto de los métodos se mantiene igual)
+
+    def exportar_tablas(self):
+        """Exportar todas las tablas del bingo a Excel"""
+        if self.bingo_actual:
+            self.bingo_actual.exportar_tablas_excel()
+
+    def abrir_modal(self, numero):
+        """Abrir modal para asignar/ver cartón (modal original de asignación)"""
+        estado_actual = self.bingo_actual.obtener_estado_carton(numero)
+
+        # Si ya está vendido o apartado, redirigir al modal de visualización
+        if estado_actual.get('vendido', False) or estado_actual.get('apartado', False):
+            self.abrir_modal_carton(numero)
+            return
+
+        # Si está disponible, abrir modal de asignación
+        self.abrir_modal_asignacion(numero, "vendido")
 
     def exportar_datos(self):
         """Exportar datos del bingo a archivo JSON"""
@@ -653,6 +779,7 @@ class VistaTablas:
                 'precio_carton': self.bingo_actual.precio_carton,
                 'cartones_vendidos': self.bingo_actual.cartones_vendidos,
                 'cartones_apartados': self.bingo_actual.cartones_apartados,
+                'cartones_generados': self.bingo_actual.cartones_generados,
                 'fecha_exportacion': datetime.now().isoformat(),
                 'version': '1.0'
             }
@@ -706,7 +833,7 @@ class VistaTablas:
                 f"📋 Bingo: {datos_importar.get('nombre', 'Desconocido')}\n"
                 f"🎫 Cartones vendidos: {len(datos_importar['cartones_vendidos'])}\n"
                 f"⏳ Cartones apartados: {len(datos_importar['cartones_apartados'])}\n\n"
-                f"⚠️  Esta acción sobrescribirá los datos actuales del bingo."
+                f"⚠️ Esta acción sobrescribirá los datos actuales del bingo."
             )
 
             if not confirmacion:
@@ -715,7 +842,10 @@ class VistaTablas:
             # Aplicar los datos importados
             self.bingo_actual.cartones_vendidos = datos_importar['cartones_vendidos']
             self.bingo_actual.cartones_apartados = datos_importar['cartones_apartados']
-            
+            # También importar cartones generados si existen
+            if 'cartones_generados' in datos_importar:
+                self.bingo_actual.cartones_generados = datos_importar['cartones_generados']
+
             # Guardar los cambios
             self.bingo_actual.guardar_datos()
 
@@ -742,8 +872,8 @@ class VistaTablas:
     def resetear_bingo(self):
         """Resetear el bingo actual"""
         if self.bingo_actual and messagebox.askyesno("Confirmar",
-            "¿Estás seguro de resetear todos los cartones?\n\n"
-            "Esta acción liberará todos los cartones vendidos y apartados."):
+                "¿Estás seguro de resetear todos los cartones?\n\n"
+                "Esta acción liberará todos los cartones vendidos y apartados."):
             self.bingo_actual.resetear()
             self.crear_botones_numeros()
             self.actualizar_info_bingo()
