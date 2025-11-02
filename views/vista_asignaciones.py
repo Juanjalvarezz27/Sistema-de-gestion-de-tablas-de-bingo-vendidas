@@ -140,14 +140,14 @@ class VistaAsignaciones:
         canvas = tk.Canvas(frame_contenedor, bg=self.colors['bg_primary'], highlightthickness=0)
         scrollbar = tk.Scrollbar(frame_contenedor, orient="vertical", command=canvas.yview)
         
-        # Frame principal para la cuadrícula - CENTRADO
+        # Frame principal para la cuadrícula
         self.frame_lista = tk.Frame(canvas, bg=self.colors['bg_primary'])
         
-        # Configurar el canvas para centrar el contenido
+        # Configurar el canvas para el scroll
         self.frame_lista.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
         
-        # Crear ventana en el canvas CENTRADA
-        canvas_frame = canvas.create_window((0, 0), window=self.frame_lista, anchor="nw", tags="frame")
+        # Crear ventana en el canvas
+        canvas.create_window((0, 0), window=self.frame_lista, anchor="nw", tags="frame")
         canvas.configure(yscrollcommand=scrollbar.set)
 
         # Función para centrar el frame_lista cuando cambie el tamaño
@@ -162,12 +162,9 @@ class VistaAsignaciones:
             if lista_width < canvas_width:
                 new_x = (canvas_width - lista_width) // 2
                 canvas.coords("frame", new_x, 0)
-            else:
-                canvas.coords("frame", 0, 0)
         
         # Vincular el evento de redimensionamiento
         canvas.bind("<Configure>", centrar_contenido)
-        self.frame_lista.bind("<Configure>", centrar_contenido)
 
         # Configurar scroll con mouse
         def on_mousewheel(event):
@@ -184,7 +181,7 @@ class VistaAsignaciones:
         self.crear_tarjetas_personas(asignaciones_por_persona)
 
     def crear_tarjetas_personas(self, asignaciones_por_persona):
-        """Crear tarjetas para todas las personas - 4 COLUMNAS PERO CENTRADAS Y MÁS GRANDES"""
+        """Crear tarjetas para todas las personas - 4 COLUMNAS AMPLIAS Y CENTRADAS"""
         # Limpiar frame
         for widget in self.frame_lista.winfo_children():
             widget.destroy()
@@ -193,20 +190,19 @@ class VistaAsignaciones:
         if not personas:
             return
 
-        # CONFIGURACIÓN FIJA DE 4 COLUMNAS (como antes)
+        # CONFIGURACIÓN FIJA DE 4 COLUMNAS
         COLUMNAS = 4
-        PADDING_HORIZONTAL = 20
-        MARGEN_ENTRE_TARJETAS = 15
         
-        # Tamaño MÁS GRANDE de tarjetas
-        ancho_tarjeta = 380  # Aumentado de 320 a 380 (más ancho)
-        alto_tarjeta = 280   # Aumentado de 240 a 280 (más alto)
+        # Tamaño UNIFORME de tarjetas
+        ancho_tarjeta = 420  # Ancho uniforme para todas
+        alto_tarjeta_base = 280  # Alto base
+        alto_extra_por_fila = 40  # Altura adicional por cada fila extra de cartones
 
         # Calcular número de filas necesarias
         total_personas = len(personas)
         filas = (total_personas + COLUMNAS - 1) // COLUMNAS
 
-        # Configurar grid para CENTRADO - todas las columnas con mismo peso
+        # Configurar grid - todas las columnas con mismo peso
         for i in range(filas):
             self.frame_lista.grid_rowconfigure(i, weight=0)
         
@@ -214,19 +210,24 @@ class VistaAsignaciones:
         for i in range(COLUMNAS):
             self.frame_lista.grid_columnconfigure(i, weight=1)
 
-        # Crear tarjetas en grid - 4 COLUMNAS CENTRADAS Y MÁS GRANDES
+        # Crear tarjetas en grid - 4 COLUMNAS CENTRADAS CON ANCHO UNIFORME
         for idx, (nombre, cartones) in enumerate(personas):
             fila = idx // COLUMNAS
             columna = idx % COLUMNAS
 
-            # Crear tarjeta con tamaño MÁS GRANDE
+            # Calcular altura dinámica basada en la cantidad de cartones
+            cartones_por_fila = 3  # SIEMPRE 3 COLUMNAS PARA CARTONES
+            filas_cartones = (len(cartones) + cartones_por_fila - 1) // cartones_por_fila
+            alto_tarjeta = alto_tarjeta_base + (filas_cartones * alto_extra_por_fila)
+
+            # Crear tarjeta con tamaño UNIFORME
             self.crear_tarjeta_persona(nombre, cartones, fila, columna, ancho_tarjeta, alto_tarjeta)
 
         # Forzar actualización del layout
         self.frame_lista.update_idletasks()
 
     def crear_tarjeta_persona(self, nombre, cartones, fila, columna, ancho, alto):
-        """Crear tarjeta moderna para una persona con tamaño MÁS GRANDE"""
+        """Crear tarjeta moderna para una persona con tamaño UNIFORME"""
         # Frame principal de la tarjeta
         frame_persona = tk.Frame(self.frame_lista, 
                                bg=self.colors['bg_card'],
@@ -234,56 +235,56 @@ class VistaAsignaciones:
                                bd=1,
                                width=ancho,
                                height=alto)
-        frame_persona.grid(row=fila, column=columna, padx=10, pady=10, sticky="nsew")  # Padding aumentado
+        frame_persona.grid(row=fila, column=columna, padx=15, pady=15, sticky="nsew")
         frame_persona.grid_propagate(False)
         
-        # Contenedor principal dentro de la tarjeta - MÁS ESPACIO INTERNO
-        frame_contenido = tk.Frame(frame_persona, bg=self.colors['bg_card'], padx=18, pady=15)
+        # Contenedor principal dentro de la tarjeta
+        frame_contenido = tk.Frame(frame_persona, bg=self.colors['bg_card'], padx=20, pady=18)
         frame_contenido.pack(fill='both', expand=True)
 
         # Header de la persona
         frame_header = tk.Frame(frame_contenido, bg=self.colors['bg_card'])
-        frame_header.pack(fill='x', pady=(0, 12))  # Más espacio
+        frame_header.pack(fill='x', pady=(0, 15))
 
         # Icono y nombre
-        lbl_icono = tk.Label(frame_header, text="👤", font=('Segoe UI', 14),  # Icono más grande
+        lbl_icono = tk.Label(frame_header, text="👤", font=('Segoe UI', 16),
                            bg=self.colors['bg_card'], fg=self.colors['accent_primary'])
-        lbl_icono.pack(side='left', padx=(0, 12))
+        lbl_icono.pack(side='left', padx=(0, 15))
 
-        # Nombre con ajuste automático - FUENTE MÁS GRANDE
+        # Nombre con ajuste automático
         lbl_nombre = tk.Label(frame_header,
             text=nombre,
-            font=('Segoe UI', 13, 'bold'),  # Fuente más grande
+            font=('Segoe UI', 14, 'bold'),
             bg=self.colors['bg_card'],
             fg=self.colors['accent_primary'],
-            wraplength=ancho - 150,  # Ajustado para el nuevo ancho
+            wraplength=ancho - 180,
             justify='left'
         )
         lbl_nombre.pack(side='left', fill='x', expand=True)
 
-        # Badge de cantidad - MÁS GRANDE
+        # Badge de cantidad
         badge_frame = tk.Frame(frame_header, bg=self.colors['accent_secondary'], 
                              relief='flat', bd=1)
         badge_frame.pack(side='right')
 
         lbl_badge = tk.Label(badge_frame,
             text=f"{len(cartones)}",
-            font=('Segoe UI', 11, 'bold'),  # Fuente más grande
+            font=('Segoe UI', 12, 'bold'),
             bg=self.colors['accent_secondary'],
             fg='white',
-            padx=8,  # Más padding
-            pady=4   # Más padding
+            padx=10,
+            pady=5
         )
         lbl_badge.pack()
 
         # Información de pago
         frame_pago = tk.Frame(frame_contenido, bg=self.colors['bg_card'])
-        frame_pago.pack(fill='x', pady=(0, 15))  # Más espacio
+        frame_pago.pack(fill='x', pady=(0, 15))
 
         total_pagado = len(cartones) * self.bingo_actual.precio_carton
         lbl_pago = tk.Label(frame_pago,
             text=f"💰 Total pagado: ${total_pagado:,.2f}",
-            font=('Segoe UI', 11, 'bold'),  # Fuente más grande
+            font=('Segoe UI', 12, 'bold'),
             bg=self.colors['bg_card'],
             fg=self.colors['text_primary']
         )
@@ -295,31 +296,31 @@ class VistaAsignaciones:
 
         lbl_cartones_titulo = tk.Label(frame_cartones,
             text="🎫 Cartones asignados:",
-            font=('Segoe UI', 11, 'bold'),  # Fuente más grande
+            font=('Segoe UI', 12, 'bold'),
             bg=self.colors['bg_card'],
             fg=self.colors['text_secondary']
         )
-        lbl_cartones_titulo.pack(anchor='w', pady=(0, 10))  # Más espacio
+        lbl_cartones_titulo.pack(anchor='w', pady=(0, 10))
 
-        # CARTONES EN FILAS DE MÁXIMO 4 (FIJO) Y CENTRADOS
-        CARTONES_POR_FILA = 4  # SIEMPRE 4 CARTONES POR FILA
+        # CARTONES EN FILAS DE MÁXIMO 3 (FIJO) - CAMBIADO DE 4 A 3
+        CARTONES_POR_FILA = 3  # AHORA SIEMPRE 3 CARTONES POR FILA
 
         # Mostrar cartones en grid
         cartones_ordenados = sorted(cartones)
         total_cartones = len(cartones_ordenados)
         filas_cartones = (total_cartones + CARTONES_POR_FILA - 1) // CARTONES_POR_FILA
 
-        # Frame para el grid de cartones - CENTRADO
+        # Frame para el grid de cartones
         frame_grid_cartones = tk.Frame(frame_cartones, bg=self.colors['bg_card'])
-        frame_grid_cartones.pack(anchor='center', pady=5)  # CENTRADO
+        frame_grid_cartones.pack(anchor='center', pady=5)
 
-        # Configurar grid para cartones - 4 columnas fijas
+        # Configurar grid para cartones - 3 columnas fijas
         for i in range(filas_cartones):
             frame_grid_cartones.grid_rowconfigure(i, weight=1)
         for i in range(CARTONES_POR_FILA):
             frame_grid_cartones.grid_columnconfigure(i, weight=1)
 
-        # Crear botones de cartones en grid - BOTONES MÁS GRANDES Y UNIFORMES
+        # Crear botones de cartones en grid - BOTONES UNIFORMES
         for idx, carton in enumerate(cartones_ordenados):
             fila_carton = idx // CARTONES_POR_FILA
             columna_carton = idx % CARTONES_POR_FILA
@@ -327,23 +328,24 @@ class VistaAsignaciones:
             btn_carton = tk.Button(frame_grid_cartones,
                 text=f"#{carton}",
                 command=lambda c=carton: self.ver_detalle_carton(c),
-                font=('Segoe UI', 10, 'bold'),  # Fuente más grande
+                font=('Segoe UI', 10, 'bold'),
                 bg=self.colors['accent_secondary'],
                 fg='white',
                 relief='flat',
                 cursor='hand2',
                 bd=0,
-                width=6,  # Botones más anchos (aumentado de 5 a 6)
-                height=1  # Botones más altos
+                width=6,  # Ancho uniforme
+                height=1
             )
-            btn_carton.grid(row=fila_carton, column=columna_carton, padx=4, pady=3, sticky="nsew")  # Más padding
+            btn_carton.grid(row=fila_carton, column=columna_carton, padx=4, pady=3, sticky="nsew")
 
-        # Si hay menos de 4 cartones en la última fila, crear frames vacíos para mantener el layout CENTRADO
+        # Si hay menos de 3 cartones en la última fila, crear frames vacíos para mantener el layout uniforme
         ultima_fila_cartones = total_cartones % CARTONES_POR_FILA
         if ultima_fila_cartones > 0 and ultima_fila_cartones < CARTONES_POR_FILA:
             for col in range(ultima_fila_cartones, CARTONES_POR_FILA):
-                frame_vacio = tk.Frame(frame_grid_cartones, bg=self.colors['bg_card'])
+                frame_vacio = tk.Frame(frame_grid_cartones, bg=self.colors['bg_card'], width=60, height=30)
                 frame_vacio.grid(row=filas_cartones-1, column=col, sticky="nsew")
+                frame_vacio.grid_propagate(False)
 
     def obtener_asignaciones_por_persona(self):
         """Obtener asignaciones agrupadas por persona"""
@@ -462,22 +464,17 @@ class VistaAsignaciones:
                     contenido.append(f"- **Cartones asignados:**")
                     contenido.append("")
                     
-                    # Centrar los números de cartones en formato de tabla
+                    # Mostrar cartones en formato de tabla con 3 columnas
                     cartones_ordenados = sorted(cartones)
                     
-                    # Calcular el ancho máximo para centrado
                     if cartones_ordenados:
-                        # Si hay pocos cartones, mostrarlos en una sola fila
-                        if len(cartones_ordenados) <= 6:
-                            linea = "   " + "   ".join(f"{carton:4}" for carton in cartones_ordenados)
+                        # Dividir en filas de 3 cartones (nuevo formato)
+                        CARTONES_POR_FILA = 3
+                        for i in range(0, len(cartones_ordenados), CARTONES_POR_FILA):
+                            grupo = cartones_ordenados[i:i + CARTONES_POR_FILA]
+                            # Formatear la línea con 3 columnas
+                            linea = "   " + "   ".join(f"#{carton:<4}" for carton in grupo)
                             contenido.append(linea)
-                        else:
-                            # Para muchos cartones, dividir en filas de 4 cartones
-                            CARTONES_POR_FILA = 4
-                            for i in range(0, len(cartones_ordenados), CARTONES_POR_FILA):
-                                grupo = cartones_ordenados[i:i + CARTONES_POR_FILA]
-                                linea = "   " + "   ".join(f"{carton:4}" for carton in grupo)
-                                contenido.append(linea)
                     
                     contenido.append("")
                     contenido.append("---")
