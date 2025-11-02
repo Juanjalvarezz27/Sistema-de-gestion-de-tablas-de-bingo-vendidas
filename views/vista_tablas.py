@@ -237,6 +237,21 @@ class VistaTablas:
                                       )
         btn_exportar_tablas.pack(side='left', padx=5)
 
+        # NUEVO BOTÓN: Generar cartones personalizados
+        btn_generar_cartones = tk.Button(toolbar_frame,
+                                       text="🎨 GENERAR CARTONES",
+                                       command=self.generar_cartones_personalizados,
+                                       font=('Segoe UI', 11, 'bold'),
+                                       bg='#e84393',
+                                       fg='white',
+                                       padx=20,
+                                       pady=10,
+                                       relief='flat',
+                                       cursor='hand2',
+                                       bd=0
+                                       )
+        btn_generar_cartones.pack(side='left', padx=5)
+
         btn_reset = tk.Button(toolbar_frame,
                             text="🔄 RESETEAR BINGO",
                             command=self.resetear_bingo,
@@ -738,12 +753,22 @@ class VistaTablas:
         modal.focus_force()
         entry_nombre.focus()
 
-    # ... (el resto de los métodos se mantiene igual)
-
     def exportar_tablas(self):
         """Exportar todas las tablas del bingo a Excel"""
         if self.bingo_actual:
             self.bingo_actual.exportar_tablas_excel()
+
+    def generar_cartones_personalizados(self):
+        """Abrir generador de cartones personalizados"""
+        if self.bingo_actual:
+            try:
+                from views.generator_cartones import GeneradorCartones
+                generador = GeneradorCartones(self.parent, self.controlador)
+                generador.abrir_modal_generador(self.bingo_actual)
+            except Exception as e:
+                messagebox.showerror("Error", f"Error al abrir el generador: {e}")
+        else:
+            messagebox.showerror("Error", "No hay bingo activo")
 
     def abrir_modal(self, numero):
         """Abrir modal para asignar/ver cartón (modal original de asignación)"""
